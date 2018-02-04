@@ -1,16 +1,11 @@
 #!/bin/bash
 
-
 function finish {
 #  rm -f $pipe
   pkill -P $$
 }
 
 trap finish EXIT
-
-#if [[ ! -p $pipe ]]; then
-#    mkfifo $pipe
-#fi
 
 mididevice=$1
 mididevout=$2
@@ -28,16 +23,11 @@ printf -v paramlow0 "%.4f" $paramlowerbound
 printf -v paramup0 "%.4f" $paramupperbound
 paramlowerbound="$((10#${paramlow0%.*}${paramlow0#*.}))"
 paramupperbound="$((10#${paramup0%.*}${paramup0#*.}))"
-#paramlowerbound=`echo "scale=1;$paramlowerbound*10000" | bc`
-#paramupperbound=`echo "scale=1;$paramupperbound*10000" | bc`
 paramlowerbound=${paramlowerbound%.*}
 paramupperbound=${paramupperbound%.*}
 ccspan=$(($ccupperbound-$cclowerbound))
 
 paramspan=$(($paramupperbound-$paramlowerbound))
-#echo "$paramlowerbound $paramupperbound $paramspan"
-
-#sendmidi -- dev $mididevout <> $pipe &
 
 oldtime=0
 
@@ -53,7 +43,6 @@ receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber |
      a="$xaircommand $param"
      b=$(for ((i=0;i<${#a};i++));do printf "%02X " \'"${a:$i:1}";done)
      echo "hex raw F0 00 20 32 32 $b F7" > $pipe 
-     #echo "hex raw F0 00 20 32 32 $b F7"
      oldtime=$newtime
    fi
  done
