@@ -15,7 +15,7 @@ offvalue=$6
 xaircommand=$7
 pipe=$8
 
-XR18_Command -i $xairip <> $pipe &
+#XR18_Command -i $xairip <> $pipe &
 
 receivemidi dev $mididevice channel $ccchannel control-change $ccnumber | 
  while read ch chnum type typenum dat 
@@ -25,7 +25,8 @@ receivemidi dev $mididevice channel $ccchannel control-change $ccnumber |
     a="$xaircommand ON"
      b=$(for ((i=0;i<${#a};i++));do printf "%02X " \'"${a:$i:1}";done)
      echo "hex raw F0 00 20 32 32 $b F7" > $pipe
-   else if [ $dat -eq $offvalue ]
+   elif [ $dat -eq $offvalue ]
+   	then
      a="$xaircommand OFF"
      b=$(for ((i=0;i<${#a};i++));do printf "%02X " \'"${a:$i:1}";done)
      echo "hex raw F0 00 20 32 32 $b F7" > $pipe

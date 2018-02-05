@@ -15,15 +15,16 @@ offvalue=$6
 xaircommand=$7
 pipe=$8
 
-XR18_Command -i $xairip <> $pipe &
+#XR18_Command -i $xairip <> $pipe &
 
 receivemidi dev $mididevice channel $ccchannel control-change $ccnumber | 
- while read ch chnum type typenum dat 
+ while read ch chnum mes typenum dat 
  do 
    if [ $dat -eq $onvalue ]
    then
      echo "$xaircommand 1" > $pipe
-   else if [ $dat -eq $offvalue ]
+   elif [ $dat -eq $offvalue ]
+   then
      echo "$xaircommand 0" > $pipe 
    fi
  done

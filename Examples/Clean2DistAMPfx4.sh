@@ -25,5 +25,6 @@ XR18_Command -i $xairip -v 0 -t 0 -f $pipe <> $pipe &
 ../cc2param.sh $mididev $xairip 1 28 50 101 0.5 0.1 "/fx/4/par/06 ,f" $pipe &
 ../cc2param.sh $mididev $xairip 1 28 50 127 0.4 1.0 "/fx/4/par/01 ,f" $pipe &
 ../cc2param.sh $mididev $xairip 1 28 102 127 0.1 0.25 "/fx/4/par/06 ,f" $pipe &
+../cc2toggle.sh $mididev $xairip 2 17 0 127 "/ch/11/insert/on ,i" $pipe &
 
 wait
