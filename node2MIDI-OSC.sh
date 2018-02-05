@@ -16,15 +16,13 @@ fi
 
 trap finish EXIT
 
-mididev=$1
-mididevout=$2
+mididev=$1              # midi device name for Continuous Controller (CC) input(s)
+mididevout=$2           # midi device name for sysex-OSC output
 
 
 sendmidi -- dev $mididevout <> $pipe &
 
-./cc2node.sh $mididev $mididevout 1 28 50 127 7 10 "/fx/4/par/05" $pipe &
-./cc2node.sh $mididev $mididevout 1 28 50 101 5 1 "/fx/4/par/06" $pipe &
-./cc2node.sh $mididev $mididevout 1 28 50 127 4 10 "/fx/4/par/01" $pipe &
-./cc2node.sh $mididev $mididevout 1 28 102 127 1 2.5 "/fx/4/par/06" $pipe &
+./cc2node.sh $mididev $mididevout <midi channel> <CC#> <CCmin> <CCmax> <parammin> <parammax> "<node formatted path>" $pipe &
+# multiple calls to cc2node.sh with different paramters can be placed here
 
 wait

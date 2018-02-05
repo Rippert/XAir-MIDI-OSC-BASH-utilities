@@ -1,7 +1,6 @@
 #!/bin/bash
 
 function finish {
-#  rm -f $pipe
   pkill -P $$
 }
 
