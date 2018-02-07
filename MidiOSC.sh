@@ -4,22 +4,21 @@
 
 function finish {
   rm -f $pipe
-  pkill -P $$
+  kill -- -$(ps -o pgid= $$ | grep -o '[0-9]*')
 }
 
 trap finish EXIT
 
 function cc2param {
 	mididevice=$1
-	mididevout=$2
-	ccchannel=$3
-	ccnumber=$4
-	cclowerbound=$5
-	ccupperbound=$6
-	paramlowerbound=$7
-	paramupperbound=$8
-	xaircommand=$9
-	pipe=${10}
+	ccchannel=$2
+	ccnumber=$3
+	cclowerbound=$4
+	ccupperbound=$5
+	paramlowerbound=$6
+	paramupperbound=$7
+	xaircommand=$8
+	pipe=$9
 	
 	
 	printf -v paramlow0 "%.4f" $paramlowerbound
@@ -90,20 +89,45 @@ function cc2toggle {
 }
 
 
-pipe=/tmp/cc2midioscpipe.$$
 
-if [[ ! -p $pipe ]]; then
-    mkfifo $pipe
+if [ $1 = "child" ]; 
+then
+	shift
+	"$@"
+else
+	pipe=/tmp/cc2midioscpipe.$$
+	
+	if [[ ! -p $pipe ]]; then
+	    mkfifo $pipe
+	fi
+	
+	
+	mididevout=$1              # midi device for sysex OSC output
+	
+	
+	sendmidi -- dev $mididevout <> $pipe &
+
+	if [ $# -gt 1 ]
+	  then
+	    shift
+	    $@ $pipe
+	fi
+		
+	HISTFILE=~/.MidiOSC_hist
+	HISTFILESIZE=200
+	history -r
+	while IFS= read -e -r cmd 
+	do
+		if [ "$cmd" = "exit" ] || [ "$cmd" = "quit" ]
+  		then 
+    			break
+  		fi
+	  [ -n "$cmd" ] && history -s "$cmd"
+	  [ -n "$cmd" ] && history -w
+	  bash -c "$0 child $cmd $pipe &"
+	done
 fi
 
+finish
 
-mididev=$1              # midi device name for Continuous Controller (CC) input(s)
-mididevout=$2           # midi device name for sysex-OSC output
-
-
-sendmidi -- dev $mididevout <> $pipe &
-
-./cc2node.sh $mididev $mididevout <midi channel> <CC#> <CCmin> <CCmax> <parammin> <parammax> "<node formatted path>" $pipe &
-# multiple calls to cc2node.sh with different paramters can be placed here
-
-wait
+exit 0
