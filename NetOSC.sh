@@ -3,22 +3,21 @@
 
 function finish {
   rm -f $pipe
-  pkill -P $$
+  kill -- -$(ps -o pgid= $$ | grep -o '[0-9]*')
 }
 
 trap finish EXIT
 
 function cc2param {
 	mididevice=$1
-	xairip=$2
-	ccchannel=$3
-	ccnumber=$4
-	cclowerbound=$5
-	ccupperbound=$6
-	paramlowerbound=$7
-	paramupperbound=$8
-	xaircommand=$9
-	pipe=${10}
+	ccchannel=$2
+	ccnumber=$3
+	cclowerbound=$4
+	ccupperbound=$5
+	paramlowerbound=$6
+	paramupperbound=$7
+	xaircommand=$8
+	pipe=$9
 	
 	printf -v paramlow0 "%.4f" $paramlowerbound
 	printf -v paramup0 "%.4f" $paramupperbound
@@ -49,15 +48,13 @@ function cc2param {
 
 function cc2toggle {
 	mididevice=$1
-	xairip=$2
-	ccchannel=$3
-	ccnumber=$4
-	onvalue=$5
-	offvalue=$6
-	xaircommand=$7
-	pipe=$8
+	ccchannel=$2
+	ccnumber=$3
+	onvalue=$4
+	offvalue=$5
+	xaircommand=$6
+	pipe=$7
 	
-	#XR18_Command -i $xairip <> $pipe &
 	
 	receivemidi dev $mididevice channel $ccchannel control-change $ccnumber | 
 	 while read ch chnum mes typenum dat 
@@ -67,24 +64,49 @@ function cc2toggle {
 	     echo "$xaircommand 1" > $pipe
 	   elif [ $dat -eq $offvalue ]
 	   then
-	     echo "$xaircommand 0" > $pipe 
+	     echo $xaircommand 0 > $pipe 
 	   fi
 	 done
 }
 
+	
+	
+if [ $1 = "child" ]; 
+then
+	shift
+	"$@"
+else
+	pipe=/tmp/cc2parampipe.$$
 
-pipe=/tmp/cc2parampipe.$$
+	if [[ ! -p $pipe ]]; then
+	    mkfifo $pipe
+	fi
 
-if [[ ! -p $pipe ]]; then
-    mkfifo $pipe
+	xairip=$1               # ipv4 address of XAir mixer
+	
+	XR18_Command -i $xairip -v 0 -t 0 -f $pipe <> $pipe &
+	
+	if [ $# -gt 1 ]
+	  then
+	    shift
+	    $@ $pipe
+	fi
+		
+	HISTFILE=~/.NetOSC_hist
+	HISTFILESIZE=200
+	history -r
+	while IFS= read -e -r cmd 
+	do
+		if [ "$cmd" = "exit" ] || [ "$cmd" = "quit" ]
+  		then 
+    			break
+  		fi
+	  [ -n "$cmd" ] && history -s "$cmd"
+	  [ -n "$cmd" ] && history -w
+	  bash -c "$0 child $cmd $pipe &"
+	done
 fi
 
-mididev=$1              # midi device name for Continuous Controller (CC) input(s)
-xairip=$2               # ipv4 address of XAir mixer
+finish
 
-XR18_Command -i $xairip -v 0 -t 0 -f $pipe <> $pipe &
-
-./cc2param.sh $mididev $xairip <midi channel> <CC#> <CCmin> <CCmax> <parammin> <parammax> "<OSC path and param format>" $pipe &
-# multiple calls to cc2node.sh with different paramters can be placed here
-
-wait
+exit 0

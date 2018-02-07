@@ -44,7 +44,10 @@ function cc2param {
 	     printf -v param0k "%05d" $param10k
 	     param=${param0k%????}.${param0k: -4}
 	     a="$xaircommand $param"
-	     b=$(for ((i=0;i<${#a};i++));do printf "%02X " \'"${a:$i:1}";done)
+	     b=$(
+	     	for ((i=0;i<${#a};i++));do printf "%02X " \'"${a:$i:1}";
+	     	done
+	     	)
 	     echo "hex raw F0 00 20 32 32 $b F7" > $pipe 
 	     oldtime=$newtime
 	   fi
@@ -69,16 +72,23 @@ function cc2toggle {
 	   if [ $dat -eq $onvalue ]
 	   then
 	    a="$xaircommand ON"
-	     b=$(for ((i=0;i<${#a};i++));do printf "%02X " \'"${a:$i:1}";done)
+	     b=$(
+	     	for ((i=0;i<${#a};i++));do printf "%02X " \'"${a:$i:1}";
+	     	done
+	     	)
 	     echo "hex raw F0 00 20 32 32 $b F7" > $pipe
 	   elif [ $dat -eq $offvalue ]
 	   	then
 	     a="$xaircommand OFF"
-	     b=$(for ((i=0;i<${#a};i++));do printf "%02X " \'"${a:$i:1}";done)
+	     b=$(
+	     	for ((i=0;i<${#a};i++));do printf "%02X " \'"${a:$i:1}";
+	     	done
+	     	)
 	     echo "hex raw F0 00 20 32 32 $b F7" > $pipe
 	   fi
 	 done
 }
+
 
 pipe=/tmp/cc2midioscpipe.$$
 
