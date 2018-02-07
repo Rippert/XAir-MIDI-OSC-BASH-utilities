@@ -88,10 +88,22 @@ function cc2toggle {
 	 done
 }
 
+function prgm {
+	fn=$1
+	pipe=$2
+	while read -r cmd
+	do
+		if [ "$cmd" != "" ]; 
+		then 
+			bash -c "$0 child $cmd $pipe &" 
+		fi
+	done < "$fn"
+}
 
 
 if [ $1 = "child" ]; 
 then
+	trap - EXIT
 	shift
 	"$@"
 else
