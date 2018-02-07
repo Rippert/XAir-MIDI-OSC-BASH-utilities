@@ -55,16 +55,13 @@ function cc2param {
 
 function cc2toggle {
 	mididevice=$1
-	xairip=$2
-	ccchannel=$3
-	ccnumber=$4
-	onvalue=$5
-	offvalue=$6
-	xaircommand=$7
-	pipe=$8
-	
-	#XR18_Command -i $xairip <> $pipe &
-	
+	ccchannel=$2
+	ccnumber=$3
+	onvalue=$4
+	offvalue=$5
+	xaircommand=$6
+	pipe=$7
+		
 	receivemidi dev $mididevice channel $ccchannel control-change $ccnumber | 
 	 while read ch chnum type typenum dat 
 	 do 
@@ -107,7 +104,7 @@ then
 	shift
 	"$@"
 else
-	pipe=/tmp/cc2midioscpipe.$$
+	pipe=/tmp/MidiOSCpipe.$$
 	
 	if [[ ! -p $pipe ]]; then
 	    mkfifo $pipe
@@ -140,6 +137,6 @@ else
 	done
 fi
 
-finish
+
 
 exit 0

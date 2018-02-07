@@ -101,7 +101,7 @@ else
 	if [ $# -gt 1 ]
 	  then
 	    shift
-	    $@ $pipe
+	    "$@" $pipe &
 	fi
 		
 	HISTFILE=~/.NetOSC_hist
