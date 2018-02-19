@@ -10,15 +10,13 @@ function finish {
 trap finish EXIT
 
 function cc2param {
-	mididevice=$1
-	ccchannel=$2
-	ccnumber=$3
-	cclowerbound=$4
-	ccupperbound=$5
-	paramlowerbound=$6
-	paramupperbound=$7
-	xaircommand=$8
-	pipe=$9
+	ccchannel=$1
+	ccnumber=$2
+	cclowerbound=$3
+	ccupperbound=$4
+	paramlowerbound=$5
+	paramupperbound=$6
+	oscpath=$7
 	
 	
 	printf -v paramlow0 "%.4f" $paramlowerbound
@@ -42,7 +40,7 @@ function cc2param {
 	     param10k=$(($paramlowerbound + $paramspan * ($dat - $cclowerbound)/$ccspan))
 	     printf -v param0k "%05d" $param10k
 	     param=${param0k%????}.${param0k: -4}
-	     a="$xaircommand $param"
+	     a="$oscpath $param"
 	     b=$(
 	     	for ((i=0;i<${#a};i++));do printf "%02X " \'"${a:$i:1}";
 	     	done
@@ -50,17 +48,15 @@ function cc2param {
 	     echo "hex raw F0 00 20 32 32 $b F7" > $pipe 
 	     oldtime=$newtime
 	   fi
-	 done
+	done &
 }
 
 function cc2toggle {
-	mididevice=$1
-	ccchannel=$2
-	ccnumber=$3
-	onvalue=$4
-	offvalue=$5
-	xaircommand=$6
-	pipe=$7
+	ccchannel=$1
+	ccnumber=$2
+	onvalue=$3
+	offvalue=$4
+	oscpath=$5
 		
 	receivemidi dev $mididevice channel $ccchannel control-change $ccnumber | 
 	 while read ch chnum type typenum dat 
@@ -75,68 +71,164 @@ function cc2toggle {
 	     echo "hex raw F0 00 20 32 32 $b F7" > $pipe
 	   elif [ $dat -eq $offvalue ]
 	   	then
-	     a="$xaircommand OFF"
+	     a="$oscpath OFF"
 	     b=$(
 	     	for ((i=0;i<${#a};i++));do printf "%02X " \'"${a:$i:1}";
 	     	done
 	     	)
 	     echo "hex raw F0 00 20 32 32 $b F7" > $pipe
 	   fi
-	 done
+	done &
 }
 
 function prgm {
 	fn=$1
-	pipe=$2
-	while read -r cmd
-	do
-		if [ "$cmd" != "" ]; 
-		then 
-			bash -c "$0 child $cmd $pipe &" 
+	
+	prgmpids="/tmp/prgm.$fn.$$"
+    tmpfiles+=("$prgmpids")
+    
+    activeprgm=-1
+    for i in ${!proctree[@]} ; do
+		prgmlist=($((i+1)) ${proctree[i]} ${pausetree[i]})
+		if [ "${prgmlist[1]}" = "prgm" -a "${prgmlist[2]}" = "$fn" ]
+		then
+			activeprgm="${prgmlist[0]}"
+		elif [ "${prgmlist[1]}" = "prgm" ]
+		then
+			pause "${prgmlist[0]}"
 		fi
-	done < "$fn"
+	done
+    if [ $activeprgm = -1 ]; then
+		while read -r pcmd
+		do
+			if [ "$pcmd" != "" ]; 
+			then 
+				$pcmd 
+				echo -n "$! " >> "$prgmpids"			
+			fi
+		done < "$fn"
+	else
+		resume $activeprgm
+	fi
+}
+	
+function list {
+	echo "Number of commands running: ${#proctree[@]} "
+	echo "A \"P\" in the second column indicates command is paused."
+	for i in ${!proctree[@]} ; do
+		echo "$((i+1)) ${pausetree[i]} ${proctree[i]}"
+	done
 }
 
-
-if [ $1 = "child" ]; 
-then
-	trap - EXIT
-	shift
-	"$@"
-else
-	pipe=/tmp/MidiOSCpipe.$$
-	
-	if [[ ! -p $pipe ]]; then
-	    mkfifo $pipe
-	fi
-	
-	
-	mididevout=$1              # midi device for sysex OSC output
-	
-	
-	sendmidi -- dev $mididevout <> $pipe &
-
-	if [ $# -gt 1 ]
-	  then
-	    shift
-	    $@ $pipe
-	fi
-		
-	HISTFILE=~/.MidiOSC_hist
-	HISTFILESIZE=200
-	history -r
-	while IFS= read -e -r cmd 
+function prune {
+	while [ $# -ge 1 ]
 	do
-		if [ "$cmd" = "exit" ] || [ "$cmd" = "quit" ]
-  		then 
-    			break
-  		fi
-	  [ -n "$cmd" ] && history -s "$cmd"
-	  [ -n "$cmd" ] && history -w
-	  bash -c "$0 child $cmd $pipe &"
+		prnarray=( ${proctree[(($1-1))]} )
+		case ${prnarray[0]} in
+		prgm)
+			kill $(cat "/tmp/prgm.${prnarray[1]}.$$")
+			wait $(cat "/tmp/prgm.${prnarray[1]}.$$") 2>/dev/null
+			unset 'proctree[(($1-1))]' 'pausetree[(($1-1))]'
+			;;
+		*)
+			kill "${prnarray[0]}"
+			wait "${prnarray[0]}" 2>/dev/null
+			unset 'proctree[(($1-1))]' 'pausetree[(($1-1))]'
+			;;
+		esac
+		shift
 	done
+}
+
+function pause {
+	while [ $# -ge 1 ]
+	do
+		prnarray=( ${proctree[(($1-1))]} )
+		case ${prnarray[0]} in
+		prgm)
+			kill -STOP $(cat "/tmp/prgm.${prnarray[1]}.$$")
+			pausetree[(($1-1))]="P"
+			;;
+		*)
+			kill -STOP "${prnarray[0]}"
+			pausetree[(($1-1))]="P"
+			;;
+		esac
+		shift
+	done
+}
+
+function resume {
+	while [ $# -ge 1 ]
+	do
+		prnarray=( ${proctree[(($1-1))]} )
+		case ${prnarray[0]} in
+		prgm)
+			kill -CONT $(cat "/tmp/prgm.${prnarray[1]}.$$")
+			pausetree[(($1-1))]=" "
+			;;
+		*)
+			kill -CONT "${prnarray[0]}"
+			pausetree[(($1-1))]=" "
+			;;
+		esac
+		shift
+	done
+}
+
+pipe=/tmp/MidiOSCpipe.$$
+
+if [[ ! -p $pipe ]]; then
+    mkfifo $pipe
 fi
 
+mididevice=$1
+mididevout=$2              # midi device for sysex OSC output
+
+
+sendmidi -- dev $mididevout <> $pipe &
+
+if [ $# -gt 2 ]
+  then
+	shift 2
+	"$@"
+	proctree+=( "$! $cmd" )
+	pausetree+=( " " )
+fi
+	
+HISTFILE=~/.NetOSC_hist
+HISTFILESIZE=200
+history -r
+while IFS= read -e -r cmd 
+do
+	if [ "$cmd" = "exit" ] || [ "$cmd" = "quit" ]
+	then 
+		break
+	fi
+  [ -n "$cmd" ] && history -s "$cmd"
+  [ -n "$cmd" ] && history -w
+  $cmd
+  cmdarray=( $cmd )
+  case ${cmdarray[0]} in
+  	list|prune|pause|resume)
+  		;;
+  	prgm)
+  		exists=0
+  		for i in ${!proctree[@]} ; do
+  			if [ "${proctree[i]}" = "$cmd" ]; then exists=1; fi
+  		done
+  		if [ $exists = 0 ]; then
+  			proctree+=( "$cmd" )
+  			pausetree+=( " " )
+  		fi
+  		;;
+  	*)
+  		proctree+=( "$! $cmd" )
+  		pausetree+=( " " )
+  		;;
+  esac
+  
+done
 
 
 exit 0
