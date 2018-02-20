@@ -1,6 +1,10 @@
 # XAir MIDI OSC BASH utilities
 These utilities allow one to utilize a MIDI controller to change parameter settings on the XAir series of mixers.
 
+All software in this repository is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
+
+This software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
 This Repository contains BASH shell scripts which utilize the command line programs XAir_Interface, sendmidi and receivemidi available at:
 
 https://github.com/Rippert/XAir-Behringer.git
