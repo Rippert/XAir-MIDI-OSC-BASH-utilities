@@ -7,7 +7,7 @@ https://github.com/Rippert/XAir-Behringer.git
 
 https://github.com/gbevin/SendMIDI.git and https://github.com/gbevin/ReceiveMIDI.git
 
-XAir_Command, sendmidi and receivemidi executables should be placed in the users PATH.
+XAir_Interface, sendmidi and receivemidi executables should be placed in the users PATH.
 
 ### Version 0.2
 The multiple scripts of version 0.1 have been replaced by two scipts (*NetOSC.sh* and *MidiOSC.sh*). Version 0.1 scripts are still availble in the branch *archive*.
