@@ -20,7 +20,7 @@ list_descendants ()
 
 
 function finish {
-  rm -f $pipe $mpipe "${tmpfiles[@]}"
+  rm -f $pipe $cpipe "${tmpfiles[@]}" /tmp/prgm.*.$$
   kill $(list_descendants $$)
 }
 
@@ -50,7 +50,6 @@ function cc2param {
 	
 	oldtime=0
 	
-	receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum dat
 	 do 
 		   newtime="$((10#$msec+10#$sec*1000+10#$min*60000+10#$hr*3600000))"
@@ -62,8 +61,7 @@ function cc2param {
 			 echo "$oscpath $format $param" > $pipe
 			 oldtime=$newtime
 		   fi
-	 done &
-}
+	done < <(receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber) &}
 
 function cc2toggle {
 	ccchannel=$1
@@ -73,7 +71,6 @@ function cc2toggle {
 	oscpath=$5
 	format=$6
 
-	receivemidi dev $mididevice channel $ccchannel control-change $ccnumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum dat 
 	 do 
 		   if [ $dat -eq $onvalue ]
@@ -83,37 +80,39 @@ function cc2toggle {
 		   then
 			 echo "$oscpath $format 0" > $pipe 
 		   fi
-	 done &
+	done < <(receivemidi dev $mididevice channel $ccchannel control-change $ccnumber) &
 }
 
 function prgm {
 	fn=$1
+	pn=$(basename $fn)
 	
-	prgmpids="/tmp/prgm.$fn.$$"
-    tmpfiles+=("$prgmpids")
+	prgmpids="/tmp/prgm.$pn.$$"
     
     activeprgm=-1
     for i in ${!proctree[@]} ; do
 		prgmlist=($((i+1)) ${proctree[i]} ${pausetree[i]})
-		if [ "${prgmlist[1]}" = "prgm" -a "${prgmlist[2]}" = "$fn" ]
+		if [ "${prgmlist[1]}" = "prgm" -a "${prgmlist[2]}" = "$pn" ]
 		then
 			activeprgm="${prgmlist[0]}"
+			break
 		elif [ "${prgmlist[1]}" = "prgm" ]
 		then
-			pause "${prgmlist[0]}"
+			prune "${prgmlist[0]}"
+			rm "/tmp/prgm.${prgmlist[2]}.$$"
+			break
 		fi
 	done
     if [ $activeprgm = -1 ]; then
+    		tmpfiles+=("$prgmpids")
 		while read -r pcmd
 		do
 			if [ "$pcmd" != "" ]; 
 			then 
 				$pcmd 
-				echo -n "$! " >> "$prgmpids"			
+				echo -n "$(list_descendants $!) $!" >> "$prgmpids"			
 			fi
 		done < "$fn"
-	else
-		resume $activeprgm
 	fi
 }
 	
@@ -136,8 +135,10 @@ function prune {
 			unset 'proctree[(($1-1))]' 'pausetree[(($1-1))]'
 			;;
 		*)
-			kill "${prnarray[0]}"
-			wait "${prnarray[0]}" 2>/dev/null
+			tokill="$(list_descendants ${prnarray[0]}) ${prnarray[0]}"
+			echo $tokill
+			kill $tokill
+			wait $tokill 2>/dev/null
 			unset 'proctree[(($1-1))]' 'pausetree[(($1-1))]'
 			;;
 		esac
@@ -182,28 +183,51 @@ function resume {
 }
 
 pipe=/tmp/NetOSCpipe.$$
+cpipe=/tmp/NetOSCcmd.$$
 
 if [[ ! -p $pipe ]]; then
 	mkfifo $pipe
 fi
 
+if [[ ! -p $cpipe ]]; then
+	mkfifo $cpipe
+fi
+
 xairip=$1               # ipv4 address of XAir mixer
 mididevice=$2
 
-XR18_Command -i $xairip -v 0 -t 0 -f $pipe <> $pipe &
+XAir_Interface -i $xairip -v 0 -t 0 -f $pipe <> $pipe &
 
 if [ $# -gt 2 ]
   then
 	shift 2
 	"$@"
-	proctree+=( "$! $cmd" )
-	pausetree+=( " " )
+cmdarray=( "$@" )
+case ${cmdarray[0]} in
+  	list|prune|pause|resume)
+  		;;
+  	prgm)
+  		exists=0
+  		for i in ${!proctree[@]} ; do
+  		if [ "${proctree[i]}" = "${cmdarray[0]} $pn" ]; then exists=1; fi
+  		done
+  		if [ $exists = 0 ]; then
+  			proctree+=( "${cmdarray[0]} $pn" )
+  			pausetree+=( " " )
+  		fi
+  		;;
+  	*)
+  		proctree+=( "$! $cmd" )
+  		pausetree+=( " " )
+  		;;
+  esac
 fi
 	
 HISTFILE=~/.NetOSC_hist
 HISTFILESIZE=200
 history -r
-while IFS= read -e -r cmd 
+
+while IFS= read -r cmd 
 do
 	if [ "$cmd" = "exit" ] || [ "$cmd" = "quit" ]
 	then 
@@ -219,10 +243,10 @@ do
   	prgm)
   		exists=0
   		for i in ${!proctree[@]} ; do
-  			if [ "${proctree[i]}" = "$cmd" ]; then exists=1; fi
+  		if [ "${proctree[i]}" = "${cmdarray[0]} $pn" ]; then exists=1; fi
   		done
   		if [ $exists = 0 ]; then
-  			proctree+=( "$cmd" )
+  			proctree+=( "${cmdarray[0]} $pn" )
   			pausetree+=( " " )
   		fi
   		;;
@@ -232,7 +256,15 @@ do
   		;;
   esac
   
-done
+done <> $cpipe &
 
+while IFS= read -e -r cmd 
+do 
+	if [ "$cmd" = "exit" ] || [ "$cmd" = "quit" ]
+	then 
+		break
+	fi
+	echo $cmd > $cpipe
+done
 
 exit 0

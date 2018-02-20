@@ -1,0 +1,5 @@
+cc2param 2 17 0 127 0.0 1.0 /ch/05/mix/fader ,f
+cc2toggle 2 18 0 127 /bus/1/insert/on ,i
+cc2param 2 17 0 127 1.0 0.0 /ch/06/mix/fader ,f
+cc2toggle 2 18 0 127 /bus/2/preamp/hpon ,i
+
