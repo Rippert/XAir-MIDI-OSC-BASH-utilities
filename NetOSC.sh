@@ -44,7 +44,8 @@ list_descendants ()
 
 function finish {
   rm -f $pipe $cpipe "${tmpfiles[@]}" /tmp/prgm.*.$$
-  kill $(list_descendants $$)
+  disown $(list_descendants $$) 2>/dev/null
+  kill $(list_descendants $$) 2>/dev/null
 }
 
 trap finish EXIT
@@ -153,15 +154,14 @@ function prune {
 		prnarray=( ${proctree[(($1-1))]} )
 		case ${prnarray[0]} in
 		prgm)
-			kill $(cat "/tmp/prgm.${prnarray[1]}.$$")
-			wait $(cat "/tmp/prgm.${prnarray[1]}.$$") 2>/dev/null
+			disown $(cat "/tmp/prgm.${prnarray[1]}.$$") 2>/dev/null
+			kill $(cat "/tmp/prgm.${prnarray[1]}.$$") 2>/dev/null
 			unset 'proctree[(($1-1))]' 'pausetree[(($1-1))]'
 			;;
 		*)
 			tokill="$(list_descendants ${prnarray[0]}) ${prnarray[0]}"
-			echo $tokill
-			kill $tokill
-			wait $tokill 2>/dev/null
+			disown $tokill 2>/dev/null
+			kill $tokill 2>/dev/null
 			unset 'proctree[(($1-1))]' 'pausetree[(($1-1))]'
 			;;
 		esac
