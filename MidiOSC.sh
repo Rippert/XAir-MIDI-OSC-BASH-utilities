@@ -43,6 +43,7 @@ list_descendants ()
 
 
 function finish {
+	rm -f $pipe $cpipe "${tmpfiles[@]}" /tmp/prgm.*.$$
 	disown $(list_descendants $$) 2>/dev/null
 	kill $(list_descendants $$) 2>/dev/null
 }
