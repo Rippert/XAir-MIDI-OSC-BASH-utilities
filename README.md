@@ -68,6 +68,6 @@ Removes one or more commands from operation. Commands are specified by their lis
 
 Reads MIDI command input on <u>MIDI-input-device-name</u> and send sysex-OSC commands to XAir mixer on MIDI device <u>MIDI-output-device-name</u>. An optional command input can be appended to the command line. Other commands are added interactively.
 
-Once `NetOSC.sh` is invoked, commands are entered via the terminal. All commands remain active until deleted with a `prune` command or until another `prgm` command is entered in the case of `prgm` (see below).
+Once `MidiOSC.sh` is invoked, commands are entered via the terminal. All commands remain active until deleted with a `prune` command or until another `prgm` command is entered in the case of `prgm` (see below).
 
 Commands are the same as NetOSC.sh, except that there is no <u>OSC-format</u> in the sysex-OSC protocol. All continuous values are the same as what is seen on the XAir Edit app. So a fader goes from -90 dB to +10 dB, not form 0.0 to 1.0.
