@@ -29,21 +29,21 @@ Currently accepted commands are:
 
 **cc2param**   <u>MIDI-channel#</u>   <u>CC#</u>   <u>CC-lower#</u>   <u>CC-upper#</u>   <u>param-lower#</u>   <u>param-upper#</u>   <u>OSC-address</u>   <u>OSC-format</u>
 
-setup a linear link between the MIDI ontinuous-controller <u>CC#</u> on MIDI channel <u>MIDI-channel#</u> and the OSC continuous parameter at <u>OSC-address</u>, with format <u>OSC-format</u>.
+setup a linear link between the MIDI continuous-controller <u>CC#</u> on MIDI channel <u>MIDI-channel#</u> and the OSC continuous parameter at <u>OSC-address</u>, with format <u>OSC-format</u>.
 
 Example: `cc2param 1 10 0 127 0.0 1.0 /ch/01/mix/fader ,f` - sets up a link between MIDI ontinuous-controller 10 on MIDI channel 1, and the main fader on channel 1 of the XAir mixer. A ontinuous-controller value of 0 will yield a fader value of -oo dB, and a ontinuous-controller value of 127 will yield a fader value of +10 dB. Intermediate ontinuous-controller values will yield intermediate fader settings.
 
-Generally used to tie a MIDI ontinuous-controller actuator (a foot pedal, knob, slider, etc) to a mixer parameter for realtime control with smooth, continous changes in values.
+Generally used to tie a MIDI continuous-controller actuator (a foot pedal, knob, slider, etc) to a mixer parameter for realtime control with smooth, continous changes in values.
 
 All continuous parameters on an XAir mixer take a float `,f` format and have a range of 0.0 to 1.0. String, `,s` and integer, `,i` formats are also possible but beyond the scope of this document.
 
 **cc2toggle**   <u>MIDI-channel#</u>   <u>CC#</u>   <u>CC-ON#</u>   <u>CC-OFF#</u>   <u>OSC-address</u>   <u>OSC-format</u>
 
-setup a one-to-one link between the MIDI ontinuous-controller <u>CC#</u> on MIDI channel <u>MIDI-channel#</u> and the OSC discrete (ON - OFF) parameter at <u>OSC-address</u>, with format <u>OSC-format</u>.
+setup a one-to-one link between the MIDI continuous-controller <u>CC#</u> on MIDI channel <u>MIDI-channel#</u> and the OSC discrete (ON - OFF) parameter at <u>OSC-address</u>, with format <u>OSC-format</u>.
 
-Example: `cc2toggle 2 18 0 127 /ch/11/insert/on ,i` - sets up a link between MIDI ontinuous-controller 18 on MIDI channel 2, and the FX insert switch on channel 11 of the XAir mixer. A ontinuous-controller value of 0 will turn ON the FX insert, and a ontinuous-controller value of 127 will turn OFF the FX insert.
+Example: `cc2toggle 2 18 0 127 /ch/11/insert/on ,i` - sets up a link between MIDI continuous-controller 18 on MIDI channel 2, and the FX insert switch on channel 11 of the XAir mixer. A continuous-controller value of 0 will turn ON the FX insert, and a continuous-controller value of 127 will turn OFF the FX insert.
 
-Generally used to tie a MIDI ontinuous-controller switch (a button) to a mixer parameter for realtime control of ON-OFF state.
+Generally used to tie a MIDI continuous-controller switch (a button) to a mixer parameter for realtime control of ON-OFF state.
 
 **prgm**   <u>file</u>
 
