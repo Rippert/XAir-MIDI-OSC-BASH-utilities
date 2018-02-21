@@ -37,7 +37,7 @@ Generally used to tie a MIDI ontinuous-controller actuator (a foot pedal, knob, 
 
 All continuous parameters on an XAir mixer take a float `,f` format and have a range of 0.0 to 1.0. String, `,s` and integer, `,i` formats are also possible but beyond the scope of this document.
 
-**cc2ptoggle**   <u>MIDI-channel#</u>   <u>CC#</u>   <u>CC-ON#</u>   <u>CC-OFF#</u>   <u>OSC-address</u>   <u>OSC-format</u>
+**cc2toggle**   <u>MIDI-channel#</u>   <u>CC#</u>   <u>CC-ON#</u>   <u>CC-OFF#</u>   <u>OSC-address</u>   <u>OSC-format</u>
 
 setup a one-to-one link between the MIDI ontinuous-controller <u>CC#</u> on MIDI channel <u>MIDI-channel#</u> and the OSC discrete (ON - OFF) parameter at <u>OSC-address</u>, with format <u>OSC-format</u>.
 
