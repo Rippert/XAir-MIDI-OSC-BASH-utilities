@@ -29,8 +29,7 @@ pausetree=()
 prgmlist=()
 activeprgm=""
 
-list_descendants ()
-{
+list_descendants () {
   local children=$(pgrep -P "$1")
 
   for pid in $children
