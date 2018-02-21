@@ -85,7 +85,7 @@ function cc2param {
 			 echo "$oscpath $format $param" > $pipe
 			 oldtime=$newtime
 		   fi
-	done < <(receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber) &}
+done < <(set +m; receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber) &}
 
 function cc2toggle {
 	ccchannel=$1
@@ -104,7 +104,7 @@ function cc2toggle {
 		   then
 			 echo "$oscpath $format 0" > $pipe 
 		   fi
-	done < <(receivemidi dev $mididevice channel $ccchannel control-change $ccnumber) &
+done < <(set +m; receivemidi dev $mididevice channel $ccchannel control-change $ccnumber) &
 }
 
 function prgm {
