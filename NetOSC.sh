@@ -44,7 +44,10 @@ list_descendants ()
 
 function finish {
   rm -f $pipe $cpipe "${tmpfiles[@]}" /tmp/prgm.*.$$
-  kill $(list_descendants $$)
+#  kill $(list_descendants $$)
+  pkill -P $todie
+  pkill -P $$
+  wait
 }
 
 trap finish EXIT
@@ -59,7 +62,10 @@ function cc2param {
 	oscpath=$7
     format=$8
 
-    
+    tmppipe=$(mktemp -u /tmp/cc2p.SS.XXXX)
+	tmpfiles+=("$tmppipe")
+	mkfifo $tmppipe
+	receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber > $tmppipe &
 	
 	printf -v paramlow0 "%.4f" $paramlowerbound
 	printf -v paramup0 "%.4f" $paramupperbound
@@ -84,7 +90,8 @@ function cc2param {
 			 echo "$oscpath $format $param" > $pipe
 			 oldtime=$newtime
 		   fi
-	done < <(receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber) &}
+	done < $tmppipe &
+	}
 
 function cc2toggle {
 	ccchannel=$1
@@ -93,6 +100,11 @@ function cc2toggle {
 	offvalue=$4
 	oscpath=$5
 	format=$6
+	
+	tmppipe=$(mktemp -u /tmp/cc2p.SS.XXXX)
+	tmpfiles+=("$tmppipe")
+	mkfifo $tmppipe
+	receivemidi dev $mididevice channel $ccchannel control-change $ccnumber > $tmppipe &
 
 	 while IFS=":. " read hr min sec msec ch chnum type typenum dat 
 	 do 
@@ -103,7 +115,7 @@ function cc2toggle {
 		   then
 			 echo "$oscpath $format 0" > $pipe 
 		   fi
-	done < <(receivemidi dev $mididevice channel $ccchannel control-change $ccnumber) &
+	done < $tmppipe &
 }
 
 function prgm {
@@ -281,6 +293,8 @@ do
   
 done <> $cpipe &
 
+todie=$!
+
 while IFS= read -e -r cmd 
 do 
 	if [ "$cmd" = "exit" ] || [ "$cmd" = "quit" ]
@@ -289,5 +303,6 @@ do
 	fi
 	echo $cmd > $cpipe
 done
+
 
 exit 0
