@@ -74,6 +74,7 @@ function cc2param {
 	
 	oldtime=0
 	
+	{ receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum dat
 	 do 
 		   newtime="$((10#$msec+10#$sec*1000+10#$min*60000+10#$hr*3600000))"
@@ -85,7 +86,8 @@ function cc2param {
 			 echo "$oscpath $format $param" > $pipe
 			 oldtime=$newtime
 		   fi
-done < <(set +m; receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber) &}
+done } &
+}
 
 function cc2toggle {
 	ccchannel=$1
@@ -95,6 +97,7 @@ function cc2toggle {
 	oscpath=$5
 	format=$6
 
+	{ receivemidi dev $mididevice channel $ccchannel control-change $ccnumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum dat 
 	 do 
 		   if [ $dat -eq $onvalue ]
@@ -104,7 +107,7 @@ function cc2toggle {
 		   then
 			 echo "$oscpath $format 0" > $pipe 
 		   fi
-done < <(set +m; receivemidi dev $mididevice channel $ccchannel control-change $ccnumber) &
+done } &
 }
 
 function prgm {

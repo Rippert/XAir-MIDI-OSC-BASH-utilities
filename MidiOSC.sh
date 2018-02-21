@@ -71,6 +71,7 @@ function cc2param {
 	
 	oldtime=0
 	 
+	 { receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum dat 
 	 do 
 	   newtime="$((10#$msec+10#$sec*1000+10#$min*60000+10#$hr*3600000))"
@@ -87,7 +88,7 @@ function cc2param {
 	     echo "hex raw F0 00 20 32 32 $b F7" > $pipe 
 	     oldtime=$newtime
 	   fi
-done < <(set +m; receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber) &
+done } &
 } 
 
 function cc2toggle {
@@ -96,7 +97,8 @@ function cc2toggle {
 	onvalue=$3
 	offvalue=$4
 	oscpath=$5
-		 
+	
+	{ receivemidi dev $mididevice channel $ccchannel control-change $ccnumber |	 
 	 while read ch chnum type typenum dat 
 	 do 
 	   if [ $dat -eq $onvalue ]
@@ -116,7 +118,7 @@ function cc2toggle {
 	     	)
 	     echo "hex raw F0 00 20 32 32 $b F7" > $pipe
 	   fi
-done < <(set +m; receivemidi dev $mididevice channel $ccchannel control-change $ccnumber) &
+done } &
 } 
 
 function prgm {
