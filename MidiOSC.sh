@@ -87,7 +87,7 @@ function cc2param {
 	     echo "hex raw F0 00 20 32 32 $b F7" > $pipe 
 	     oldtime=$newtime
 	   fi
-	done < <(receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber) &
+done < <(set +m; receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber) &
 } 
 
 function cc2toggle {
@@ -116,7 +116,7 @@ function cc2toggle {
 	     	)
 	     echo "hex raw F0 00 20 32 32 $b F7" > $pipe
 	   fi
-	done < <(receivemidi dev $mididevice channel $ccchannel control-change $ccnumber) &
+done < <(set +m; receivemidi dev $mididevice channel $ccchannel control-change $ccnumber) &
 } 
 
 function prgm {
