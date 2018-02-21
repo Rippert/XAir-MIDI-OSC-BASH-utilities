@@ -49,7 +49,7 @@ Generally used to tie a MIDI ontinuous-controller switch (a button) to a mixer p
 
 Load a list of commands from a file on disk named <u>file</u> (use a full path if not in working directory). commands can be any valid coomand accepted by the script.
 
-WHen multiple `prgm` commands are loaded, only the most recent one remains active. Thus loading `prgm OSClist1` will load all the commands from the file named *OSClist1* in the current directory. Loading `prgm OSClist2` will remove all *OSClist1* commands and load all *OSClist2* commands.
+When multiple `prgm` commands are loaded, only the most recent one remains active. Thus loading `prgm OSClist1` will load all the commands from the file named *OSClist1* in the current directory. Loading `prgm OSClist2` will remove all *OSClist1* commands and load all *OSClist2* commands.
 
 Example: `prgm OSClist1`
 
