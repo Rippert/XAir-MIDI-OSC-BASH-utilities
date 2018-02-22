@@ -271,8 +271,7 @@ do
 	then 
 		break
 	fi
-  [ -n "$cmd" ] && history -s "$cmd"
-  [ -n "$cmd" ] && history -w
+
   $cmd
   cmdarray=( $cmd )
 case ${cmdarray[0]} in
@@ -302,7 +301,10 @@ do
 	then 
 		break
 	fi
+	[ -n "$cmd" ] && history -s "$cmd"
+	[ -n "$cmd" ] && history -w
 	echo $cmd > $cpipe
+	
 done
 
 exit 0
