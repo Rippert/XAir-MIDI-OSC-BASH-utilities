@@ -59,8 +59,8 @@ function cc2param {
 	oscpath=$7
 	
 	
-	printf -v paramlow0 "%.4f" $paramlowerbound
-	printf -v paramup0 "%.4f" $paramupperbound
+	printf -v paramlow0 "%.2f" $paramlowerbound
+	printf -v paramup0 "%.2f" $paramupperbound
 	paramlowerbound="$((10#${paramlow0%.*}${paramlow0#*.}))"
 	paramupperbound="$((10#${paramup0%.*}${paramup0#*.}))"
 	paramlowerbound=${paramlowerbound%.*}
@@ -68,6 +68,11 @@ function cc2param {
 	ccspan=$(($ccupperbound-$cclowerbound))
 	
 	paramspan=$(($paramupperbound-$paramlowerbound))
+	
+	Xpath=$(
+     	for ((i=0;i<${#oscpath};i++));do printf "%02X " \'"${oscpath:$i:1}";
+     	done
+     	)
 	
 	oldtime=0
 	 
@@ -77,15 +82,14 @@ function cc2param {
 	   newtime="$((10#$msec+10#$sec*1000+10#$min*60000+10#$hr*3600000))"
 	   if [ $dat -ge $cclowerbound -a $dat -le $ccupperbound ] && [ $(($newtime - $oldtime)) -ge 40 -o $newtime -lt $oldtime -o $dat -eq $cclowerbound -o $dat -eq $ccupperbound ]
 	   then
-	     param10k=$(($paramlowerbound + $paramspan * ($dat - $cclowerbound)/$ccspan))
-	     printf -v param0k "%05d" $param10k
-	     param=${param0k%????}.${param0k: -4}
-	     a="$oscpath $param"
+	     param100=$(($paramlowerbound + $paramspan * ($dat - $cclowerbound)/$ccspan))
+	     printf -v param1 "%03d" $param100
+	     param=${param1%??}.${param1: -2}
 	     b=$(
-	     	for ((i=0;i<${#a};i++));do printf "%02X " \'"${a:$i:1}";
+	     	for ((i=0;i<${#param};i++));do printf "%02X " \'"${param:$i:1}";
 	     	done
 	     	)
-	     echo "hex raw F0 00 20 32 32 $b F7" > $pipe 
+	     echo "hex raw F0 00 20 32 32 $Xpath 20 $b F7" > $pipe 
 	     oldtime=$newtime
 	   fi
 done } &
