@@ -53,7 +53,17 @@ When multiple `prgm` commands are loaded, only the most recent one remains activ
 
 Example: `prgm OSClist1`
 
-Loads all commands from the file *OSClist1*. Unloads any other `prgm` files previously loaded. teh file is a plain text file with a list of commands (one command per line).
+Loads all commands from the file *OSClist1*. Unloads any other `prgm` files previously loaded. the file is a plain text file with a list of commands (one command per line).
+
+**load**   <u>file</u>
+
+Load a list of commands from a file on disk named <u>file</u> (use a full path if not in working directory). commands can be any valid coomand accepted by the script.
+
+Unlike the `prgm` command, the `load` command loads each command from <u>file</u> individually, as if they had been typed into the command line seperately. the `load` command does not unload any other commands.
+
+Example: `load OSClist1`
+
+Loads all commands from the file *OSClist1*. All commands from *OSClist1* are loaded seperately, and must be unloaded (via a `prune` command) individually.
 
 **list**
 

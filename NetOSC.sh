@@ -142,11 +142,28 @@ function prgm {
 	fi
 }
 	
+function load {
+	fn=$1
+	while read -r pcmd
+	do
+		if [ "$pcmd" != "" ]; 
+		then 
+			echo "$pcmd"	 > $cpipe
+		fi
+	done < "$fn" &
+}
+	
 function list {
 	echo "Number of commands running: ${#proctree[@]} "
 	echo "A \"P\" in the second column indicates command is paused."
 	for i in ${!proctree[@]} ; do
-		echo "$((i+1)) ${pausetree[i]} ${proctree[i]}"
+		procarray=( ${proctree[i]} )
+		if kill -0 ${procarray[0]} 2>/dev/null;
+		then
+			echo "$((i+1)) ${pausetree[i]} ${proctree[i]}"
+		else
+			unset 'proctree[i]' 'pausetree[i]'
+		fi
 	done
 }
 
@@ -229,7 +246,7 @@ if [ $# -gt 2 ]
 	"$@"
 cmdarray=( "$@" )
 case ${cmdarray[0]} in
-  	list|prune|pause|resume)
+  	list|prune|pause|resume|load)
   		;;
   	prgm)
   		exists=0
@@ -259,26 +276,31 @@ do
 		break
 	fi
 	
-  $cmd
-  cmdarray=( $cmd )
-  case ${cmdarray[0]} in
-  	list|prune|pause|resume)
-  		;;
-  	prgm)
-  		exists=0
-  		for i in ${!proctree[@]} ; do
-  		if [ "${proctree[i]}" = "${cmdarray[0]} $pn" ]; then exists=1; fi
-  		done
-  		if [ $exists = 0 ]; then
-  			proctree+=( "${cmdarray[0]} $pn" )
-  			pausetree+=( " " )
-  		fi
-  		;;
-  	*)
-  		proctree+=( "$! $cmd" )
-  		pausetree+=( " " )
-  		;;
-  esac
+	cmdarray=( $cmd )
+	if [[ $(compgen -A function) = *"${cmdarray[0]}"* ]]; then
+	  $cmd
+
+	  case ${cmdarray[0]} in
+	  	list|prune|pause|resume|load)
+	  		;;
+	  	prgm)
+	  		exists=0
+	  		for i in ${!proctree[@]} ; do
+	  		if [ "${proctree[i]}" = "${cmdarray[0]} $pn" ]; then exists=1; fi
+	  		done
+	  		if [ $exists = 0 ]; then
+	  			proctree+=( "${cmdarray[0]} $pn" )
+	  			pausetree+=( " " )
+	  		fi
+	  		;;
+	  	*)
+	  		proctree+=( "$! $cmd" )
+	  		pausetree+=( " " )
+	  		;;
+	  esac
+	else
+		echo "command ${cmdarray[0]} unrecognized"
+	fi
   
 done <> $cpipe &
 
