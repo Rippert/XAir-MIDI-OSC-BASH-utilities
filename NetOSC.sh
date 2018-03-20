@@ -96,7 +96,7 @@ function cc2toggle {
 	oscpath=$5
 	format=$6
 
-	{ receivemidi dev $mididevice channel $ccchannel control-change $ccnumber |
+	{ receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum dat 
 	 do 
 		   if [ $dat -eq $onvalue ]
@@ -141,6 +141,23 @@ function prgm {
 		done < "$fn"
 	fi
 }
+
+function global {
+	fn=$1
+	pn=$(basename $fn)
+	
+	prgmpids="/tmp/prgm.$pn.$$"
+    
+	tmpfiles+=("$prgmpids")
+	while read -r pcmd
+	do
+		if [ "$pcmd" != "" ]; 
+		then 
+			$pcmd 
+			echo -n "$(list_descendants $!) $!" >> "$prgmpids"			
+		fi
+	done < "$fn"
+}
 	
 function load {
 	fn=$1
@@ -152,40 +169,146 @@ function load {
 		fi
 	done < "$fn" &
 }
+
+function snapload {
+	sn=$1
+	echo "/-snap/load ,i $sn" > $pipe
+}
+
+function pch2 {
+	pchchannel=$1
+	pchnumber=$2
+	
+	shift 2
+
+	{ receivemidi ts dev $mididevice channel $pchchannel program-change $pchnumber |
+	 while IFS=":. " read hr min sec msec ch chnum type typenum 
+	 do 
+		  echo 	"$@" > $cpipe
+	done } &
+}
 	
 function list {
 	echo "Number of commands running: ${#proctree[@]} "
 	echo "A \"P\" in the second column indicates command is paused."
 	for i in ${!proctree[@]} ; do
 		procarray=( ${proctree[i]} )
-		if kill -0 ${procarray[0]} 2>/dev/null;
-		then
+		#if kill -0 ${procarray[0]} 2>/dev/null;
+		#then
 			echo "$((i+1)) ${pausetree[i]} ${proctree[i]}"
-		else
-			unset 'proctree[i]' 'pausetree[i]'
-		fi
+		#else
+		#	unset 'proctree[i]' 'pausetree[i]'
+		#fi
 	done
 }
 
 function prune {
-	while [ $# -ge 1 ]
-	do
-		prnarray=( ${proctree[(($1-1))]} )
-		case ${prnarray[0]} in
-		prgm)
-			disown $(cat "/tmp/prgm.${prnarray[1]}.$$") 2>/dev/null
-			kill $(cat "/tmp/prgm.${prnarray[1]}.$$") 2>/dev/null
-			unset 'proctree[(($1-1))]' 'pausetree[(($1-1))]'
-			;;
-		*)
-			tokill="$(list_descendants ${prnarray[0]}) ${prnarray[0]}"
-			disown $tokill 2>/dev/null
-			kill $tokill 2>/dev/null
-			unset 'proctree[(($1-1))]' 'pausetree[(($1-1))]'
-			;;
-		esac
-		shift
-	done
+	if [ $1 = "all" ]; then
+		for i in ${!proctree[@]} ; do
+			prnarray=( ${proctree[i]} )
+			case ${prnarray[0]} in
+			prgm|global)
+				disown $(cat "/tmp/prgm.${prnarray[1]}.$$") 2>/dev/null
+				kill $(cat "/tmp/prgm.${prnarray[1]}.$$") 2>/dev/null
+				unset 'proctree[i]' 'pausetree[i]'
+				;;
+			*)
+				tokill="$(list_descendants ${prnarray[0]}) ${prnarray[0]}"
+				disown $tokill 2>/dev/null
+				kill $tokill 2>/dev/null
+				unset 'proctree[i]' 'pausetree[i]'
+				;;
+			esac
+		done
+	else
+		while [ $# -ge 1 ]
+		do
+			prnarray=( ${proctree[(($1-1))]} )
+			case ${prnarray[0]} in
+			prgm|global)
+				disown $(cat "/tmp/prgm.${prnarray[1]}.$$") 2>/dev/null
+				kill $(cat "/tmp/prgm.${prnarray[1]}.$$") 2>/dev/null
+				unset 'proctree[(($1-1))]' 'pausetree[(($1-1))]'
+				;;
+			*)
+				tokill="$(list_descendants ${prnarray[0]}) ${prnarray[0]}"
+				disown $tokill 2>/dev/null
+				kill $tokill 2>/dev/null
+				unset 'proctree[(($1-1))]' 'pausetree[(($1-1))]'
+				;;
+			esac
+			shift
+		done
+	fi
+}
+
+function save {
+	fn=$1
+	shift
+	> $fn
+	if [ $1 = "all" ]; then
+		for i in ${!proctree[@]} ; do
+			prnarray=( ${proctree[i]} )
+			case ${prnarray[0]} in
+			prgm|global)
+				echo "${prnarray[@]}" >> $fn
+				;;
+			*)
+				unset 'prnarray[0]'
+				echo "${prnarray[@]}" >> $fn
+				;;
+			esac
+		done
+	else
+		while [ $# -ge 1 ]
+		do
+			prnarray=( ${proctree[(($1-1))]} )
+			case ${prnarray[0]} in
+			prgm|global)
+				echo "${prnarray[@]}" >> $fn
+				;;
+			*)
+				unset 'prnarray[0]'
+				echo "${prnarray[@]}" >> $fn
+				;;
+			esac
+			shift
+		done
+	fi
+}
+
+function append {
+	fn=$1
+	shift
+	if [ $1 = "all" ]; then
+		for i in ${!proctree[@]} ; do
+			prnarray=( ${proctree[i]} )
+			case ${prnarray[0]} in
+			prgm|global)
+				echo "${prnarray[@]}" >> $fn
+				;;
+			*)
+				unset 'prnarray[0]'
+				echo "${prnarray[@]}" >> $fn
+				;;
+			esac
+		done
+	else
+		while [ $# -ge 1 ]
+		do
+			prnarray=( ${proctree[(($1-1))]} )
+			case ${prnarray[0]} in
+			prgm|global)
+				echo "${prnarray[@]}" >> $fn
+				;;
+			*)
+				unset 'prnarray[0]'
+				echo "${prnarray[@]}" >> $fn
+				;;
+			esac
+			shift
+		done
+	fi
 }
 
 function pause {
@@ -193,7 +316,7 @@ function pause {
 	do
 		prnarray=( ${proctree[(($1-1))]} )
 		case ${prnarray[0]} in
-		prgm)
+		prgm|global)
 			kill -STOP $(cat "/tmp/prgm.${prnarray[1]}.$$")
 			pausetree[(($1-1))]="P"
 			;;
@@ -211,7 +334,7 @@ function resume {
 	do
 		prnarray=( ${proctree[(($1-1))]} )
 		case ${prnarray[0]} in
-		prgm)
+		prgm|global)
 			kill -CONT $(cat "/tmp/prgm.${prnarray[1]}.$$")
 			pausetree[(($1-1))]=" "
 			;;
@@ -246,9 +369,9 @@ if [ $# -gt 2 ]
 	"$@"
 cmdarray=( "$@" )
 case ${cmdarray[0]} in
-  	list|prune|pause|resume|load)
+  	list|prune|pause|resume|load|snapload|save|append)
   		;;
-  	prgm)
+  	prgm|global)
   		exists=0
   		for i in ${!proctree[@]} ; do
   		if [ "${proctree[i]}" = "${cmdarray[0]} $pn" ]; then exists=1; fi
@@ -279,11 +402,10 @@ do
 	cmdarray=( $cmd )
 	if [[ $(compgen -A function) = *"${cmdarray[0]}"* ]]; then
 	  $cmd
-
 	  case ${cmdarray[0]} in
-	  	list|prune|pause|resume|load)
+	  	list|prune|pause|resume|load|snapload|save|append)
 	  		;;
-	  	prgm)
+	  	prgm|global)
 	  		exists=0
 	  		for i in ${!proctree[@]} ; do
 	  		if [ "${proctree[i]}" = "${cmdarray[0]} $pn" ]; then exists=1; fi
