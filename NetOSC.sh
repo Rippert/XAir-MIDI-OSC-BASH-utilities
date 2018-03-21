@@ -27,6 +27,7 @@ tmpfiles=()
 proctree=()
 pausetree=()
 prgmlist=()
+setlistarray=()
 activeprgm=""
 
 list_descendants () {
@@ -187,6 +188,45 @@ function pch2 {
 		  echo 	"$@" > $cpipe
 	done } &
 }
+
+function setlist {
+	setlistindex=-1
+	setlistarray=( "$@" )
+}
+
+function next {
+	case $setlistindex in
+		-1)
+			setlistindex=0
+			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
+			;;
+		$((${#setlistarray[@]}-1)))
+			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
+			echo "End of SetList"
+			;;
+		*)
+			setlistindex=$((setlistindex+1))
+			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
+			;;
+	esac
+}
+
+function previous {
+	case $setlistindex in
+		-1)
+			setlistindex=0
+			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
+			;;
+		0)
+			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
+			echo "Beginning of SetList"
+			;;
+		*)
+			setlistindex=$((setlistindex-1))
+			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
+			;;
+	esac
+}
 	
 function list {
 	echo "Number of commands running: ${#proctree[@]} "
@@ -321,7 +361,8 @@ function pause {
 			pausetree[(($1-1))]="P"
 			;;
 		*)
-			kill -STOP "${prnarray[0]}"
+			tokill="$(list_descendants ${prnarray[0]}) ${prnarray[0]}"
+			kill -STOP $tokill
 			pausetree[(($1-1))]="P"
 			;;
 		esac
@@ -339,7 +380,8 @@ function resume {
 			pausetree[(($1-1))]=" "
 			;;
 		*)
-			kill -CONT "${prnarray[0]}"
+			tokill="$(list_descendants ${prnarray[0]}) ${prnarray[0]}"
+			kill -CONT $tokill
 			pausetree[(($1-1))]=" "
 			;;
 		esac
@@ -369,7 +411,7 @@ if [ $# -gt 2 ]
 	"$@"
 cmdarray=( "$@" )
 case ${cmdarray[0]} in
-  	list|prune|pause|resume|load|snapload|save|append)
+  	list|prune|pause|resume|load|snapload|save|append|next|previous|setlist)
   		;;
   	prgm|global)
   		exists=0
@@ -403,7 +445,7 @@ do
 	if [[ $(compgen -A function) = *"${cmdarray[0]}"* ]]; then
 	  $cmd
 	  case ${cmdarray[0]} in
-	  	list|prune|pause|resume|load|snapload|save|append)
+	  	list|prune|pause|resume|load|snapload|save|append|next|previous|setlist)
 	  		;;
 	  	prgm|global)
 	  		exists=0
