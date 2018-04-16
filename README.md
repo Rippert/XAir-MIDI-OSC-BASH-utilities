@@ -140,6 +140,8 @@ Saves a list of cammands to a file called <u>filename</u>. commands are taken fr
 Saves a list of cammands to a file called <u>filename</u>. commands are taken from the current "list" and are designated by their "list" command numbers. If <u>command#</u> is "all", all commands are saved to <u>filename</u>. <u>filename</u> is created if it does not exist and is appended to if it does exist.
 
 ### MidiOSC.sh 
+**Note: currently MidiOSC.sh is behind NetOSC.sh, and does not support the latest commands. This will be rectified shortly.**
+
 **MidiOSC.sh**   <u>MIDI-input-device-name</u>   <u>MIDI-output-device-name</u>   [command]
 
 Reads MIDI command input on <u>MIDI-input-device-name</u> and send sysex-OSC commands to XAir mixer on MIDI device <u>MIDI-output-device-name</u>. An optional command input can be appended to the command line. Other commands are added interactively.
@@ -147,3 +149,5 @@ Reads MIDI command input on <u>MIDI-input-device-name</u> and send sysex-OSC com
 Once `MidiOSC.sh` is invoked, commands are entered via the terminal. All commands remain active until deleted with a `prune` command or until another `prgm` command is entered in the case of `prgm` (see below).
 
 Commands are the same as NetOSC.sh, except that there is no <u>OSC-format</u> in the sysex-OSC protocol. All continuous values are the same as what is seen on the XAir Edit app. So a fader goes from -90 dB to +10 dB, not form 0.0 to 1.0.
+
+
