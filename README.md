@@ -45,11 +45,45 @@ Example: `cc2toggle 2 18 0 127 /ch/11/insert/on ,i` - sets up a link between MID
 
 Generally used to tie a MIDI continuous-controller switch (a button) to a mixer parameter for realtime control of ON-OFF state.
 
+**cctapspeed**   <u>MIDI-channel#</u>   <u>CC#</u>   <u>MaxTime</u>    <u>OSC-address</u>   <u>OSC-format</u>   [multiplier]
+**noteontapspeed**   <u>MIDI-channel#</u>   <u>Note#</u>   <u>MaxTime</u>    <u>OSC-address</u>   <u>OSC-format</u>   [multiplier]
+**pchtapspeed**   <u>MIDI-channel#</u>   <u>PCH#</u>   <u>MaxTime</u>    <u>OSC-address</u>   <u>OSC-format</u>   [multiplier]
+
+Send the reciprocal of the time between succesive taps (speed in Hz) on the given midi control to the speed parameter of a FX module. The <u>MaxTime</u> paramter sets the maximum tap interval (in milliseconds) that will be evaluated. The optional multiplier input allows the time interval to be multiplied by an integer to yield a slower speed for use when multi-measure cycle times of the effect are desired.
+
+Tap controls can be a MIDI conintuous controller message, a NoteON message, or a program change message.
+
+Notes: the MIDI CC version interprets any value of the given CC# as a tap. The NoteOn version only reads notes with a velocity value greater than 0 as a tap. Note values must be provided as a decimal integer between 1 and 127. The <u>OSC-format</u> parameter whould be ",s" in order to input the value in Hz. All single (stereo) FX modules have the speed parameter as the first parameter. Multi-module FX such as Delay-Chorus may have the speed parameter on a hogher number parameter (Delay-chorus has SPEED on parameter 7). The Rotary Speaker FX module has a low speed (parameter 1) and a high speed (parameter 2). This control can also be used with any other parameter that has units of Hz.
+
+Example: `noteontapspeed 1 75 20000 /fx/2/par/07 ,s 2` - send the reciprocal of the interval (multiplied by 2)  between succesive NoteOn messages for Note 75 to the FX module in FX slot 2. Where paramter 7 of that module is the speed control (Delay-Chourus FX module).
+
+**cctaptime**   <u>MIDI-channel#</u>   <u>CC#</u>   <u>MaxTime</u>    <u>OSC-address</u>   <u>OSC-format</u>   [divisor]
+**noteontaptime**   <u>MIDI-channel#</u>   <u>Note#</u>   <u>MaxTime</u>    <u>OSC-address</u>   <u>OSC-format</u>   [divisor]
+**pchtaptime**   <u>MIDI-channel#</u>   <u>PCH#</u>   <u>MaxTime</u>    <u>OSC-address</u>   <u>OSC-format</u>   [divisor]
+
+Send the time between succesive taps (time in ms) on the given midi control to the speed parameter of a FX module. The <u>MaxTime</u> paramter sets the maximum tap interval (in milliseconds) that will be evaluated. The optional divisor input allows the time interval to be divided by an integer to yield a smaller time interval for use when sub-measure repeat times of the effect are desired.
+
+Tap controls can be a MIDI conintuous controller message, a NoteON message, or a program change message.
+
+Notes: the MIDI CC version interprets any value of the given CC# as a tap. The NoteOn version only reads notes with a velocity value greater than 0 as a tap. Note values must be provided as a decimal integer between 1 and 127. The <u>OSC-format</u> parameter whould be ",s" in order to input the value in ms. All FX modules have the time parameter as the first parameter except the Stereo Delay which has time as parameter 2. The time parameter in the Fair compressor FX modules will not work with these controls. This control can also be used with any other parameter that has units of ms.
+
+Example: `noteontaptime 1 75 3000 /fx/2/par/01 ,s 2` - send the time interval (divided by 2)  between succesive NoteOn messages for Note 75 to the FX module in FX slot 2.
+
+**global**   <u>file</u>
+
+Load a list of commands from a file on disk named <u>file</u> (use a full path if not in working directory). commands can be any valid coomand accepted by the script.
+
+Multiple `global` commands can be loaded simultaneously. Global commands occupy a single line in the "list"
+
+Example: `global OSClist1`
+
+Loads all commands from the file *OSClist1*. The file is a plain text file with a list of commands (one command per line).
+
 **prgm**   <u>file</u>
 
 Load a list of commands from a file on disk named <u>file</u> (use a full path if not in working directory). commands can be any valid coomand accepted by the script.
 
-When multiple `prgm` commands are loaded, only the most recent one remains active. Thus loading `prgm OSClist1` will load all the commands from the file named *OSClist1* in the current directory. Loading `prgm OSClist2` will remove all *OSClist1* commands and load all *OSClist2* commands.
+When multiple `prgm` commands are loaded, only the most recent one remains active. Thus loading `prgm OSClist1` will load all the commands from the file named *OSClist1* in the current directory. Loading `prgm OSClist2` will remove all *OSClist1* commands and load all *OSClist2* commands. Prgm commands occupy a single line in the "list"
 
 Example: `prgm OSClist1`
 
@@ -57,9 +91,9 @@ Loads all commands from the file *OSClist1*. Unloads any other `prgm` files prev
 
 **load**   <u>file</u>
 
-Load a list of commands from a file on disk named <u>file</u> (use a full path if not in working directory). commands can be any valid coomand accepted by the script.
+Load a list of commands from a file on disk named <u>file</u> (use a full path if not in working directory). Commands can be any valid coomand accepted by the script.
 
-Unlike the `prgm` command, the `load` command loads each command from <u>file</u> individually, as if they had been typed into the command line seperately. the `load` command does not unload any other commands.
+Unlike the `global` or `prgm` commands, the `load` command loads each command from <u>file</u> individually, as if they had been typed into the command line seperately. Each line from the file loaded occpies a sepereate line in the "list" The `load` command does not unload any other commands.
 
 Example: `load OSClist1`
 
@@ -69,9 +103,41 @@ Loads all commands from the file *OSClist1*. All commands from *OSClist1* are lo
 
 List all running commands. Commands are preceeded by a number to be used for the `prune` command
 
+**snapload** <u>snapshot#</u>
+
+load snapshot number <u>snapshot#</u> on the XAir mixer.
+
+**pch2** <u>midichannel#</u>  <u>pch#</u>  <u>any-valid-command</u>
+
+When a program change message,<u>pch#</u>, is recieved on MIDI channel <u>midichannel#</u>, execute the NetOSC.sh command <u>any-valid-command</u> as if it had been typed into the terminal. 
+
+Example: `pch2 1 22 snapload 12` - When a program change #22 is recieved on MIDI channel 22, load snapshot 12 on the XAir mixer.
+
+**setlist** <u>file1</u>  <u>file2</u>  <u>file3</u> ...
+
+Create a set list from a space sepearated list of filenames. Only one setlist can be used at a time. Whenever the setlist command is invoked any previous detlist is deleted and replaced with the new list.
+
+Example: `setlist OSClist1 OSClist2 OSClist3` - load OSClist1, OSClist2,and OSClist3 as a setlist.
+
+**next**
+
+Load the next setlist program file. Starts at the first entry in the list after each setlist command.
+
+**previous**
+
+Load the previous setlist program file. Loads the first entry in the setlist if invoked after a setlist command with no next command invoked in between.
+
 **prune**   <u>command#</u>   [addition-space-seperated-command#s ...]
 
-Removes one or more commands from operation. Commands are specified by their listing number from a `list` command.
+Removes one or more commands from operation. Commands are specified by their listing number from a `list` command. If <u>command#</u> is "all", all commands are removed.
+
+**save**   <u>filename</u>  <u>command#</u>   [addition-space-seperated-command#s ...]
+
+Saves a list of cammands to a file called <u>filename</u>. commands are taken from the current "list" and are designated by their "list" command numbers. If <u>command#</u> is "all", all commands are saved to <u>filename</u>. <u>filename</u> is overwritten with each invokation.
+
+**append**   <u>filename</u>  <u>command#</u>   [addition-space-seperated-command#s ...]
+
+Saves a list of cammands to a file called <u>filename</u>. commands are taken from the current "list" and are designated by their "list" command numbers. If <u>command#</u> is "all", all commands are saved to <u>filename</u>. <u>filename</u> is created if it does not exist and is appended to if it does exist.
 
 ### MidiOSC.sh 
 **MidiOSC.sh**   <u>MIDI-input-device-name</u>   <u>MIDI-output-device-name</u>   [command]
