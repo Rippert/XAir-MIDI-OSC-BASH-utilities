@@ -50,6 +50,154 @@ function finish {
 
 trap finish EXIT
 
+function cctapspeed {
+	ccchannel=$1
+	ccnumber=$2
+	maxtime=$3
+	oscpath=$4
+    format=$5
+	
+	oldtime=0
+	if [ $# -gt 5 ]; then mult=$6; else mult=1; fi
+	
+	{ receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber |
+	 while IFS=":. " read hr min sec msec ch chnum type typenum dat
+	 do 
+		   newtime="$((10#$msec+10#$sec*1000+10#$min*60000+10#$hr*3600000))"
+		   tempo=$((($newtime - $oldtime)*$mult))
+		   if [ $tempo -le $maxtime -a $newtime -gt $oldtime ]
+		   then
+			param100=$((100000/$tempo))
+     		printf -v param1 "%03d" $param100
+     		param=${param1%??}.${param1: -2}
+			echo "$oscpath $format $param" > $pipe
+		   fi
+		   oldtime=$newtime
+done } &
+}
+
+function cctaptime {
+	ccchannel=$1
+	ccnumber=$2
+	maxtime=$3
+	oscpath=$4
+    format=$5
+	
+	oldtime=0
+	if [ $# -gt 5 ]; then mult=$6; else mult=1; fi
+	
+	{ receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber |
+	 while IFS=":. " read hr min sec msec ch chnum type typenum dat
+	 do 
+		   newtime="$((10#$msec+10#$sec*1000+10#$min*60000+10#$hr*3600000))"
+		   tempo=$((($newtime - $oldtime)/$mult))
+		   if [ $tempo -le $maxtime -a $newtime -gt $oldtime ]
+		   then
+			echo "$oscpath $format $tempo" > $pipe
+		   fi
+		   oldtime=$newtime
+done } &
+}
+
+function noteontapspeed {
+	notechannel=$1
+	notenumber=$2
+	maxtime=$3
+	oscpath=$4
+    format=$5
+	
+	oldtime=0
+	if [ $# -gt 5 ]; then mult=$6; else mult=1; fi
+	
+	{ receivemidi ts dev $mididevice channel $notechannel note-on $notenumber |
+	 while IFS=":. " read hr min sec msec ch chnum type typenum dat
+	 do 
+		   newtime="$((10#$msec+10#$sec*1000+10#$min*60000+10#$hr*3600000))"
+		   tempo=$((($newtime - $oldtime)*$mult))
+		   if [ $tempo -le $maxtime -a $newtime -gt $oldtime ]
+		   then
+			param100=$((100000/$tempo))
+     		printf -v param1 "%03d" $param100
+     		param=${param1%??}.${param1: -2}
+			echo "$oscpath $format $param" > $pipe
+		   fi
+		   oldtime=$newtime
+done } &
+}
+
+function noteontaptime {
+	notechannel=$1
+	notenumber=$2
+	maxtime=$3
+	oscpath=$4
+    format=$5
+	
+	oldtime=0
+	if [ $# -gt 5 ]; then mult=$6; else mult=1; fi
+	
+	{ receivemidi ts dev $mididevice channel $notechannel note-on $notenumber |
+	 while IFS=":. " read hr min sec msec ch chnum type typenum dat
+	 do 
+		   newtime="$((10#$msec+10#$sec*1000+10#$min*60000+10#$hr*3600000))"
+		   tempo=$((($newtime - $oldtime)/$mult))
+		   if [ $tempo -le $maxtime -a $newtime -gt $oldtime ]
+		   then
+			echo "$oscpath $format $tempo" > $pipe
+		   fi
+		   oldtime=$newtime
+done } &
+}
+
+function pchtapspeed {
+	pchchannel=$1
+	pchnumber=$2
+	maxtime=$3
+	oscpath=$4
+    format=$5
+	
+	oldtime=0
+	if [ $# -gt 5 ]; then mult=$6; else mult=1; fi
+	
+	{ receivemidi ts dev $mididevice channel $pchchannel program-change $pchnumber |
+	 while IFS=":. " read hr min sec msec ch chnum type typenum 
+	 do 
+		   newtime="$((10#$msec+10#$sec*1000+10#$min*60000+10#$hr*3600000))"
+		   tempo=$((($newtime - $oldtime)*$mult))
+		   if [ $tempo -le $maxtime -a $newtime -gt $oldtime ]
+		   then
+			param100=$((100000/$tempo))
+     		printf -v param1 "%03d" $param100
+     		param=${param1%??}.${param1: -2}
+			echo "$oscpath $format $param" > $pipe
+		   fi
+		   oldtime=$newtime
+		   
+done } &
+}
+
+function pchtaptime {
+	pchchannel=$1
+	pchnumber=$2
+	maxtime=$3
+	oscpath=$4
+    format=$5
+	
+	oldtime=0
+	if [ $# -gt 5 ]; then mult=$6; else mult=1; fi
+	
+	{ receivemidi ts dev $mididevice channel $pchchannel program-change $pchnumber |
+	 while IFS=":. " read hr min sec msec ch chnum type typenum 
+	 do 
+		   newtime="$((10#$msec+10#$sec*1000+10#$min*60000+10#$hr*3600000))"
+		   tempo=$((($newtime - $oldtime)/$mult))
+		   if [ $tempo -le $maxtime -a $newtime -gt $oldtime ]
+		   then
+			echo "$oscpath $format $tempo" > $pipe
+		   fi
+		   oldtime=$newtime
+done } &
+}
+
 function cc2param {
 	ccchannel=$1
 	ccnumber=$2
