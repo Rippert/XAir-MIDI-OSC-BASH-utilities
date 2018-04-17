@@ -46,7 +46,9 @@ Example: `cc2toggle 2 18 0 127 /ch/11/insert/on ,i` - sets up a link between MID
 Generally used to tie a MIDI continuous-controller switch (a button) to a mixer parameter for realtime control of ON-OFF state.
 
 **cctapspeed**   <u>MIDI-channel#</u>   <u>CC#</u>   <u>MaxTime</u>    <u>OSC-address</u>   <u>OSC-format</u>   [multiplier]
+
 **noteontapspeed**   <u>MIDI-channel#</u>   <u>Note#</u>   <u>MaxTime</u>    <u>OSC-address</u>   <u>OSC-format</u>   [multiplier]
+
 **pchtapspeed**   <u>MIDI-channel#</u>   <u>PCH#</u>   <u>MaxTime</u>    <u>OSC-address</u>   <u>OSC-format</u>   [multiplier]
 
 Send the reciprocal of the time between succesive taps (speed in Hz) on the given midi control to the speed parameter of a FX module. The <u>MaxTime</u> paramter sets the maximum tap interval (in milliseconds) that will be evaluated. The optional multiplier input allows the time interval to be multiplied by an integer to yield a slower speed for use when multi-measure cycle times of the effect are desired.
@@ -58,7 +60,9 @@ Notes: the MIDI CC version interprets any value of the given CC# as a tap. The N
 Example: `noteontapspeed 1 75 20000 /fx/2/par/07 ,s 2` - send the reciprocal of the interval (multiplied by 2)  between succesive NoteOn messages for Note 75 to the FX module in FX slot 2. Where paramter 7 of that module is the speed control (Delay-Chourus FX module).
 
 **cctaptime**   <u>MIDI-channel#</u>   <u>CC#</u>   <u>MaxTime</u>    <u>OSC-address</u>   <u>OSC-format</u>   [divisor]
+
 **noteontaptime**   <u>MIDI-channel#</u>   <u>Note#</u>   <u>MaxTime</u>    <u>OSC-address</u>   <u>OSC-format</u>   [divisor]
+
 **pchtaptime**   <u>MIDI-channel#</u>   <u>PCH#</u>   <u>MaxTime</u>    <u>OSC-address</u>   <u>OSC-format</u>   [divisor]
 
 Send the time between succesive taps (time in ms) on the given midi control to the speed parameter of a FX module. The <u>MaxTime</u> paramter sets the maximum tap interval (in milliseconds) that will be evaluated. The optional divisor input allows the time interval to be divided by an integer to yield a smaller time interval for use when sub-measure repeat times of the effect are desired.
