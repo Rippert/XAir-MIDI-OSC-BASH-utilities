@@ -144,7 +144,7 @@ Saves a list of cammands to a file called <u>filename</u>. commands are taken fr
 Saves a list of cammands to a file called <u>filename</u>. commands are taken from the current "list" and are designated by their "list" command numbers. If <u>command#</u> is "all", all commands are saved to <u>filename</u>. <u>filename</u> is created if it does not exist and is appended to if it does exist.
 
 ### MidiOSC.sh 
-**Note: currently MidiOSC.sh is behind NetOSC.sh, and does not support the latest commands. This will be rectified shortly.**
+**Note: currently MidiOSC.sh is updated with all NetOSC.sh commands, but is untested. Please open an issue if you find bugs.**
 
 **MidiOSC.sh**   <u>MIDI-input-device-name</u>   <u>MIDI-output-device-name</u>   [command]
 
