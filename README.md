@@ -19,9 +19,9 @@ The multiple scripts of version 0.1 have been replaced by two scipts (*NetOSC.sh
 Examples of `prgm` (see below) files are provided in *OSClist1,2,3* for *NetOSC.sh*, and *MOSClist1,2* for *MidiOSC.sh*.
 
 ### NetOSC.sh 
-**NetOSC.sh**   <u>XAir-IPv4-address</u>   <u>MIDI-device-name</u>   [command]
+**NetOSC.sh**   <u>OSC-server-IPv4-address</u>   <u>OSC-server-Port</u>   <u>MIDI-device-name</u>   [command]
 
-Reads MIDI command input on <u>MIDI-device-name</u> and send OSC commands to XAir mixer at IP address <u>XAir-IPv4-address</u>. An optional command input can be appended to the command line. Other commands are added interactively.
+Reads MIDI command input on <u>MIDI-device-name</u> and send OSC commands to OSC server (such as a XAir mixe)r at IP address <u>OSC-server-IPv4-address</u> on port <u>OSC-server-Port</u>. An optional command input can be appended to the command line. Other commands are added interactively.
 
 Once `NetOSC.sh` is invoked, commands are entered via the terminal. All commands remain active until deleted with a `prune` command or until another `prgm` command is entered in the case of `prgm` (see below). 
 

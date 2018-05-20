@@ -548,14 +548,15 @@ if [[ ! -p $cpipe ]]; then
 	mkfifo $cpipe
 fi
 
-xairip=$1               # ipv4 address of XAir mixer
-mididevice=$2
+xairip=$1    
+xairport=$2           # ipv4 address of XAir mixer
+mididevice=$3
 
-XAir_Interface -i $xairip -v 0 -t 0 -f $pipe <> $pipe &
+XAir_Interface -i $xairip -p $xairport -v 0 -t 0 -f $pipe <> $pipe &
 
-if [ $# -gt 2 ]
+if [ $# -gt 3 ]
   then
-	shift 2
+	shift 3
 	"$@"
 cmdarray=( "$@" )
 case ${cmdarray[0]} in
