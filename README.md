@@ -111,6 +111,24 @@ List all running commands. Commands are preceeded by a number to be used for the
 
 load snapshot number <u>snapshot#</u> on the XAir mixer.
 
+**sendMIDI** <u>any-valid-sendmidi-command</u>
+
+send an arbitrary MIDI command on interface <u>MIDI-device-name</u>.
+
+Example: `sendMIDI ch 1 cc 2 3` - Send a Continous controller message of "3" on CC 2 over MIDI channel 1.
+
+**sendOSC** <u>any-valid-OSC-command</u>
+
+send an arbitrary OSC command to the server at <u>OSC-server-IPv4-address</u>.
+
+Example: `sendOSC /ch/01/mix/fader ,f 0.5` - Set the Main fader of channel 1 on an XAIR mixer to it's midpoint.
+
+**syscmd** <u>any-valid-shell-command</u>
+
+run an arbitrary sytem shell command in a subshell.
+
+Example: `syscmd ls -l` - lists the contents of the present working directory.
+
 **pch2** <u>midichannel#</u>  <u>pch#</u>  <u>any-valid-command</u>
 
 When a program change message,<u>pch#</u>, is recieved on MIDI channel <u>midichannel#</u>, execute the NetOSC.sh command <u>any-valid-command</u> as if it had been typed into the terminal. 

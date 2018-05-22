@@ -537,6 +537,18 @@ function resume {
 	done
 }
 
+function sendMIDI {
+	sendmidi dev $mididevice $@
+}
+
+function sendOSC {
+	echo $@ > $pipe
+}
+
+function syscmd {
+	$@
+}
+
 pipe=/tmp/NetOSCpipe.$$
 cpipe=/tmp/NetOSCcmd.$$
 
@@ -560,7 +572,7 @@ if [ $# -gt 3 ]
 	"$@"
 cmdarray=( "$@" )
 case ${cmdarray[0]} in
-  	list|prune|pause|resume|load|snapload|save|append|next|previous|setlist)
+  	list|prune|pause|resume|load|snapload|save|append|next|previous|setlist|sendMIDI|sendOSC|syscmd)
   		;;
   	prgm|global)
   		exists=0
@@ -594,7 +606,7 @@ do
 	if [[ $(compgen -A function) = *"${cmdarray[0]}"* ]]; then
 	  $cmd
 	  case ${cmdarray[0]} in
-	  	list|prune|pause|resume|load|snapload|save|append|next|previous|setlist)
+	  	list|prune|pause|resume|load|snapload|save|append|next|previous|setlist|sendMIDI|sendOSC|syscmd)
 	  		;;
 	  	prgm|global)
 	  		exists=0
