@@ -206,7 +206,8 @@ function cc2param {
 	paramlowerbound=$5
 	paramupperbound=$6
 	oscpath=$7
-    format=$8
+	shift 7
+    format=$@
 
     
 	
