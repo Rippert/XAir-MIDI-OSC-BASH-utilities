@@ -75,7 +75,7 @@ Example: `noteontaptime 1 75 3000 /fx/2/par/01 ,s 2` - send the time interval (d
 
 **global**   <u>file</u>
 
-Load a list of commands from a file on disk named <u>file</u> (use a full path if not in working directory). commands can be any valid coomand accepted by the script except **load** or **prgm**.
+Load a list of commands from a file on disk named <u>file</u> (use a full path if not in working directory). commands can be any valid command accepted by the script except **load** or **prgm**.
 
 Multiple `global` commands can be loaded simultaneously. Global commands occupy a single line in the "list"
 
@@ -85,7 +85,7 @@ Loads all commands from the file *OSClist1*. The file is a plain text file with 
 
 **prgm**   <u>file</u>
 
-Load a list of commands from a file on disk named <u>file</u> (use a full path if not in working directory). Commands can be any valid coomand accepted by the script except **load** or **global**.
+Load a list of commands from a file on disk named <u>file</u> (use a full path if not in working directory). Commands can be any valid command accepted by the script except **load** or **global**.
 
 When multiple `prgm` commands are loaded, only the most recent one remains active. Thus loading `prgm OSClist1` will load all the commands from the file named *OSClist1* in the current directory. Loading `prgm OSClist2` will remove all *OSClist1* commands and load all *OSClist2* commands. Prgm commands occupy a single line in the "list"
 
@@ -95,7 +95,7 @@ Loads all commands from the file *OSClist1*. Unloads any other `prgm` files prev
 
 **load**   <u>file</u>
 
-Load a list of commands from a file on disk named <u>file</u> (use a full path if not in working directory). Commands can be any valid coomand accepted by the script.
+Load a list of commands from a file on disk named <u>file</u> (use a full path if not in working directory). Commands can be any valid command accepted by the script.
 
 Unlike the `global` or `prgm` commands, the `load` command loads each command from <u>file</u> individually, as if they had been typed into the command line seperately. Each line from the file loaded occpies a sepereate line in the "list" The `load` command does not unload any other commands.
 
@@ -113,9 +113,9 @@ load snapshot number <u>snapshot#</u> on the XAir mixer.
 
 **sendMIDI** <u>any-valid-sendmidi-command</u>
 
-send an arbitrary MIDI command on interface <u>MIDI-device-name</u>.
+send an arbitrary MIDI command</u>.
 
-Example: `sendMIDI ch 1 cc 2 3` - Send a Continous controller message of "3" on CC 2 over MIDI channel 1.
+Example: `sendMIDI dev Port-0 ch 1 cc 2 3` - Send a Continous controller message of "3" on CC 2 over MIDI channel 1 on MIDI interface Port-0.
 
 **sendOSC** <u>any-valid-OSC-command</u>
 

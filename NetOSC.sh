@@ -539,7 +539,7 @@ function resume {
 }
 
 function sendMIDI {
-	sendmidi dev $mididevice $@
+	sendmidi $@
 }
 
 function sendOSC {
