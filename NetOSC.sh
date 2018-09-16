@@ -262,9 +262,45 @@ done } &
 function prgm {
 	fn=$1
 	pn=$(basename $fn)
+	local fnsub=( "$fn" )
 	
 	prgmpids="/tmp/prgm.$pn.$$"
-    
+	
+	function _nested_load_prgm {
+			fnsub1="$1"
+			fnsub+=( "$1" )
+			while read -r pcmdsub
+			do
+				local bad=0
+		  		for i in ${!fnsub[@]} ; do
+		  			if [ "$pcmdsub" != "load ${fnsub[i]}" ]; then bad=1; fi
+		  		done
+		  		if [ "$pcmdsub" != "" ] && [ bad != 1 ]
+		  		then 
+					local cmdarraysub=( $pcmdsub )
+					if [[ $(compgen -A function) = *"${cmdarraysub[0]}"* ]]; then
+					  case ${cmdarraysub[0]} in
+					  	list|prune|pause|resume|load|snapload|save|append|next|previous|setlist|sendMIDI|sendOSC|syscmd)
+					  		$pcmdsub
+					  		;;
+					  	prgm|global)
+					  		echo "Warning: nested prgm or global commands in prgm command are ignored"
+					  		;;
+					  	load)
+					  		_nested_load_prgm ${cmdarraysub[1]}
+					  		;;
+					  	*)
+							$pcmdsub 
+							echo -n "$(list_descendants $!) $!" >> "$prgmpids"
+					  		;;
+					  esac
+					else
+						echo "command ${cmdarraysub[0]} unrecognized"
+					fi			
+				fi
+		done < "$fnsub1"
+		}
+   
     activeprgm=-1
     for i in ${!proctree[@]} ; do
 		prgmlist=($((i+1)) ${proctree[i]} ${pausetree[i]})
@@ -283,39 +319,121 @@ function prgm {
     		tmpfiles+=("$prgmpids")
 		while read -r pcmd
 		do
-			if [ "$pcmd" != "" ]; 
+			local bad=0
+			for i in ${!fnsub[@]} ; do
+				if [ "$pcmd" != "load ${fnsub[i]}" ]; then bad=1; fi
+			done
+			if [ "$pcmd" != "" ] && [ bad != 1 ]
 			then 
-				$pcmd 
-				echo -n "$(list_descendants $!) $!" >> "$prgmpids"			
+				local cmdarraysub=( $pcmd )
+				if [[ $(compgen -A function) = *"${cmdarray[0]}"* ]]; then
+				  case ${cmdarraysub[0]} in
+				  	list|prune|pause|resume|load|snapload|save|append|next|previous|setlist|sendMIDI|sendOSC|syscmd)
+				  		$pcmd
+				  		;;
+				  	prgm|global)
+				  		echo "Warning: nested prgm or global commands in prgm command are ignored"
+				  		;;
+				  	load)
+				  		_nested_load_prgm ${cmdarray[1]}
+				  		;;
+				  	*)
+						$pcmd 
+						echo -n "$(list_descendants $!) $!" >> "$prgmpids"
+				  		;;
+				  esac
+				else
+					echo "command ${cmdarraysub[0]} unrecognized"
+				fi			
 			fi
 		done < "$fn"
 	fi
+	unset -f _nested_load_prgm
 }
 
 function global {
 	fn=$1
 	pn=$(basename $fn)
+	local fnsub=( "$fn" )
 	
 	prgmpids="/tmp/prgm.$pn.$$"
+	
+	function _nested_load_global {
+			fnsub1="$1"
+			fnsub+=( "$1" )
+			while read -r pcmdsub
+			do
+				local bad=0
+		  		for i in ${!fnsub[@]} ; do
+		  			if [ "$pcmdsub" != "load ${fnsub[i]}" ]; then bad=1; fi
+		  		done
+		  		if [ "$pcmdsub" != "" ] && [ bad != 1 ]
+		  		then 
+					local cmdarraysub=( $pcmdsub )
+					if [[ $(compgen -A function) = *"${cmdarraysub[0]}"* ]]; then
+					  case ${cmdarraysub[0]} in
+					  	list|prune|pause|resume|load|snapload|save|append|next|previous|setlist|sendMIDI|sendOSC|syscmd)
+					  		$pcmdsub
+					  		;;
+					  	prgm|global)
+					  		echo "Warning: nested prgm or global commands in global command are ignored"
+					  		;;
+					  	load)
+					  		_nested_load_prgm ${cmdarraysub[1]}
+					  		;;
+					  	*)
+							$pcmdsub 
+							echo -n "$(list_descendants $!) $!" >> "$prgmpids"
+					  		;;
+					  esac
+					else
+						echo "command ${cmdarray[0]} unrecognized"
+					fi			
+				fi
+			done < "$fnsub1"
+		}
     
 	tmpfiles+=("$prgmpids")
 	while read -r pcmd
 	do
-		if [ "$pcmd" != "" ]; 
+		local bad=0
+		for i in ${!fnsub[@]} ; do
+			if [ "$pcmd" != "load ${fnsub[i]}" ]; then bad=1; fi
+		done
+		if [ "$pcmd" != "" ] && [ bad != 1 ] 
 		then 
-			$pcmd 
-			echo -n "$(list_descendants $!) $!" >> "$prgmpids"			
+			local cmdarraysub=( $pcmd )
+			if [[ $(compgen -A function) = *"${cmdarray[0]}"* ]]; then
+			  case ${cmdarraysub[0]} in
+			  	list|prune|pause|resume|load|snapload|save|append|next|previous|setlist|sendMIDI|sendOSC|syscmd)
+			  		$pcmd
+			  		;;
+			  	prgm|global)
+			  		echo "Warning: nested prgm or global commands in global command are ignored"
+			  		;;
+			  	load)
+			  		_nested_load_global ${cmdarray[1]}
+			  		;;
+			  	*)
+					$pcmd 
+					echo -n "$(list_descendants $!) $!" >> "$prgmpids"
+			  		;;
+			  esac
+			else
+				echo "command ${cmdarraysub[0]} unrecognized"
+			fi			
 		fi
 	done < "$fn"
+	unset -f _nested_load_global
 }
 	
 function load {
 	fn=$1
 	while read -r pcmd
 	do
-		if [ "$pcmd" != "" ]; 
+		if [ "$pcmd" != "" ] && [ "$pcmd" != "load $fn" ]; 
 		then 
-			echo "$pcmd"	 > $cpipe
+			echo "$pcmd" > $cpipe
 		fi
 	done < "$fn" &
 }
@@ -348,14 +466,17 @@ function next {
 		-1)
 			setlistindex=0
 			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
+			echo "setlist active program #$setlistindex ${setlistarray[setlistindex]}"
 			;;
 		$((${#setlistarray[@]}-1)))
+			setlistindex=0
 			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
-			echo "End of SetList"
+			echo "Reset SetList to beginning, active program #$setlistindex ${setlistarray[setlistindex]}"
 			;;
 		*)
 			setlistindex=$((setlistindex+1))
 			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
+			echo "setlist active program #$setlistindex ${setlistarray[setlistindex]}"
 			;;
 	esac
 }
@@ -365,14 +486,17 @@ function previous {
 		-1)
 			setlistindex=0
 			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
+			echo "setlist active program #$setlistindex ${setlistarray[setlistindex]}"
 			;;
 		0)
+			setlistindex=$((${#setlistarray[@]}-1))
 			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
-			echo "Beginning of SetList"
+			echo "Reset SetList to end, active program #$setlistindex ${setlistarray[setlistindex]}"
 			;;
 		*)
 			setlistindex=$((setlistindex-1))
 			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
+			echo "setlist active program #$setlistindex ${setlistarray[setlistindex]}"
 			;;
 	esac
 }
@@ -561,6 +685,7 @@ if [[ ! -p $cpipe ]]; then
 	mkfifo $cpipe
 fi
 
+
 xairip=$1    
 xairport=$2           # ipv4 address of XAir mixer
 mididevice=$3
@@ -570,26 +695,30 @@ XAir_Interface -i $xairip -p $xairport -v 0 -t 0 -f $pipe <> $pipe &
 if [ $# -gt 3 ]
   then
 	shift 3
-	"$@"
 cmdarray=( "$@" )
-case ${cmdarray[0]} in
-  	list|prune|pause|resume|load|snapload|save|append|next|previous|setlist|sendMIDI|sendOSC|syscmd)
-  		;;
-  	prgm|global)
-  		exists=0
-  		for i in ${!proctree[@]} ; do
-  		if [ "${proctree[i]}" = "${cmdarray[0]} $pn" ]; then exists=1; fi
-  		done
-  		if [ $exists = 0 ]; then
-  			proctree+=( "${cmdarray[0]} $pn" )
-  			pausetree+=( " " )
-  		fi
-  		;;
-  	*)
-  		proctree+=( "$! $cmd" )
-  		pausetree+=( " " )
-  		;;
-  esac
+	if [[ $(compgen -A function) = *"${cmdarray[0]}"* ]]; then
+	  "$@"
+	  case ${cmdarray[0]} in
+	  	list|prune|pause|resume|load|snapload|save|append|next|previous|setlist|sendMIDI|sendOSC|syscmd)
+	  		;;
+	  	prgm|global)
+	  		exists=0
+	  		for i in ${!proctree[@]} ; do
+	  		if [ "${proctree[i]}" = "${cmdarray[0]} $pn" ]; then exists=1; fi
+	  		done
+	  		if [ $exists = 0 ]; then
+	  			proctree+=( "${cmdarray[0]} $pn" )
+	  			pausetree+=( " " )
+	  		fi
+	  		;;
+	  	*)
+	  		proctree+=( "$! $@" )
+	  		pausetree+=( " " )
+	  		;;
+	  esac
+	else
+		echo "command ${cmdarray[0]} unrecognized"
+	fi
 fi
 	
 HISTFILE=~/.NetOSC_hist
