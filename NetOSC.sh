@@ -456,6 +456,23 @@ function pch2 {
 	done } &
 }
 
+function cc2 {
+	ccchannel=$1
+	ccnumber=$2
+	value=$3
+	
+	shift 3
+
+	{ receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber |
+	 while IFS=":. " read hr min sec msec ch chnum type typenum dat 
+	 do 
+		   if [ $dat -eq $value ]
+		   then
+			 echo "$@" > $cpipe 
+		   fi
+	done } &
+}
+
 function setlist {
 	setlistindex=-1
 	setlistarray=( "$@" )

@@ -133,7 +133,13 @@ Example: `syscmd ls -l` - lists the contents of the present working directory.
 
 When a program change message,<u>pch#</u>, is recieved on MIDI channel <u>midichannel#</u>, execute the NetOSC.sh command <u>any-valid-command</u> as if it had been typed into the terminal. 
 
-Example: `pch2 1 22 snapload 12` - When a program change #22 is recieved on MIDI channel 22, load snapshot 12 on the XAir mixer.
+Example: `pch2 1 22 snapload 12` - When a program change #22 is recieved on MIDI channel 1, load snapshot 12 on the XAir mixer.
+
+**cc2** <u>midichannel#</u>  <u>cc#</u> <u>cc-value</u>  <u>any-valid-command</u>
+
+When a control change message,<u>cc#</u> <u>cc-value</u>, is recieved on MIDI channel <u>midichannel#</u>, execute the NetOSC.sh command <u>any-valid-command</u> as if it had been typed into the terminal. 
+
+Example: `cc2 1 10 127 snapload 12` - When a control change #10 of value 127 is recieved on MIDI channel 1, load snapshot 12 on the XAir mixer.
 
 **setlist** <u>file1</u>  <u>file2</u>  <u>file3</u> ...
 
