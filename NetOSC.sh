@@ -688,7 +688,7 @@ function sendOSC {
 }
 
 function syscmd {
-	$@
+	eval $@
 }
 
 pipe=/tmp/NetOSCpipe.$$
