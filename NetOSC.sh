@@ -262,18 +262,19 @@ done } &
 function note2toggle {
 	notechannel=$1
 	notenumber=$2
-	oscpath=$3
-    format=$4
+	reverse=$3
+	oscpath=$4
+    format=$5
 	
 	{ receivemidi ts dev $mididevice channel $notechannel note $notenumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum dat 
 	 do 
 		   if [ $dat -gt 0 ]
 		   then
-			 echo "$oscpath $format 1" > $pipe
+			 echo "$oscpath $format $(( 1 - $reverse ))" > $pipe
 		   elif [ $dat -eq 0 ]
 		   then
-			 echo "$oscpath $format 0" > $pipe 
+			 echo "$oscpath $format $(( 0 + $reverse ))" > $pipe 
 		   fi
 done } &
 }

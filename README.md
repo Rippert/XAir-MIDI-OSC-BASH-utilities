@@ -43,9 +43,9 @@ setup a one-to-one link between the MIDI continuous-controller <u>CC#</u> on MID
 
 Example: `cc2toggle 2 18 0 127 /ch/11/insert/on ,i` - sets up a link between MIDI continuous-controller 18 on MIDI channel 2, and the FX insert switch on channel 11 of the XAir mixer. A continuous-controller value of 0 will turn ON the FX insert, and a continuous-controller value of 127 will turn OFF the FX insert.
 
-**note2toggle**   <u>MIDI-channel#</u>   <u>Note#</u>    <u>OSC-address</u>   <u>OSC-format</u>
+**note2toggle**   <u>MIDI-channel#</u>   <u>Note#</u>   <u>Reverse</U>    <u>OSC-address</u>   <u>OSC-format</u>
 
-setup a one-to-one link between the MIDI note <u>Note#</u> on MIDI channel <u>MIDI-channel#</u> and the OSC discrete (ON - OFF) parameter at <u>OSC-address</u>, with format <u>OSC-format</u>.
+setup a one-to-one link between the MIDI note <u>Note#</u> on MIDI channel <u>MIDI-channel#</u> and the OSC discrete (ON - OFF) parameter at <u>OSC-address</u>, with format <u>OSC-format</u>. <u>Reverse</U> controls the mapping, a <u>Reverse</U> value of 0 means note-on is ON and <u>Reverse</U> value of 1 means note-on is OFF.
 
 Example: `note2toggle 2 15 /ch/11/insert/on ,i` - sets up a link between MIDI Note 15 on MIDI channel 2, and the FX insert switch on channel 11 of the XAir mixer. A note-on (velocity greater than 0) at note 15 will turn ON the FX insert, and a note-off (velocity equal to 0) at note 15 will turn OFF the FX insert.
 
