@@ -266,13 +266,13 @@ function note2toggle {
 	oscpath=$4
     format=$5
 	
-	{ receivemidi ts dev $mididevice channel $notechannel note $notenumber |
+	{ receivemidi ts dev $mididevice channel $notechannel nn note $notenumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum dat 
 	 do 
-		   if [ $dat -gt 0 ]
+		   if [ $typenum -eq $notenumber -a $dat -gt 0 ]
 		   then
 			 echo "$oscpath $format $(( 1 - $reverse ))" > $pipe
-		   elif [ $dat -eq 0 ]
+		   elif [ $typenum -eq $notenumber -a $dat -eq 0 ]
 		   then
 			 echo "$oscpath $format $(( 0 + $reverse ))" > $pipe 
 		   fi
