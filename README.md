@@ -148,7 +148,7 @@ Example: `cc2 1 10 127 snapload 12` - When a control change #10 of value 127 is 
 
 **setlist** <u>file1</u>  <u>file2</u>  <u>file3</u> ...
 
-Create a set list from a space sepearated list of filenames. Only one setlist can be used at a time. Whenever the setlist command is invoked any previous detlist is deleted and replaced with the new list.
+Create a set list from a space sepearated list of filenames. Only one setlist can be used at a time. Whenever the setlist command is invoked any previous setlist is deleted and replaced with the new list.
 
 Example: `setlist OSClist1 OSClist2 OSClist3` - load OSClist1, OSClist2,and OSClist3 as a setlist.
 

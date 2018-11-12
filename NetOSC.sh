@@ -504,17 +504,17 @@ function next {
 	case $setlistindex in
 		-1)
 			setlistindex=0
-			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
+			echo "load ${setlistarray[setlistindex]}" > $cpipe
 			echo "setlist active program #$setlistindex ${setlistarray[setlistindex]}"
 			;;
 		$((${#setlistarray[@]}-1)))
 			setlistindex=0
-			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
+			echo "load ${setlistarray[setlistindex]}" > $cpipe
 			echo "Reset SetList to beginning, active program #$setlistindex ${setlistarray[setlistindex]}"
 			;;
 		*)
 			setlistindex=$((setlistindex+1))
-			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
+			echo "load ${setlistarray[setlistindex]}" > $cpipe
 			echo "setlist active program #$setlistindex ${setlistarray[setlistindex]}"
 			;;
 	esac
@@ -524,17 +524,17 @@ function previous {
 	case $setlistindex in
 		-1)
 			setlistindex=0
-			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
+			echo "load ${setlistarray[setlistindex]}" > $cpipe
 			echo "setlist active program #$setlistindex ${setlistarray[setlistindex]}"
 			;;
 		0)
 			setlistindex=$((${#setlistarray[@]}-1))
-			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
+			echo "load ${setlistarray[setlistindex]}" > $cpipe
 			echo "Reset SetList to end, active program #$setlistindex ${setlistarray[setlistindex]}"
 			;;
 		*)
 			setlistindex=$((setlistindex-1))
-			echo "prgm ${setlistarray[setlistindex]}" > $cpipe
+			echo "load ${setlistarray[setlistindex]}" > $cpipe
 			echo "setlist active program #$setlistindex ${setlistarray[setlistindex]}"
 			;;
 	esac
