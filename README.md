@@ -80,7 +80,7 @@ Example: `noteontaptime 1 75 3000 /fx/2/par/01 ,s 2` - send the time interval (d
 
 **global**   <u>file</u>
 
-Load a list of commands from a file on disk named <u>file</u> (use a full path if not in working directory). commands can be any valid command accepted by the script except **load** or **prgm**.
+Load a list of commands from a file on disk named <u>file</u> (use a full path if not in working directory). commands can be any valid command accepted by the script except **global** or **prgm**.
 
 Multiple `global` commands can be loaded simultaneously. Global commands occupy a single line in the "list"
 
@@ -90,7 +90,7 @@ Loads all commands from the file *OSClist1*. The file is a plain text file with 
 
 **prgm**   <u>file</u>
 
-Load a list of commands from a file on disk named <u>file</u> (use a full path if not in working directory). Commands can be any valid command accepted by the script except **load** or **global**.
+Load a list of commands from a file on disk named <u>file</u> (use a full path if not in working directory). Commands can be any valid command accepted by the script except **prgm** or **global**.
 
 When multiple `prgm` commands are loaded, only the most recent one remains active. Thus loading `prgm OSClist1` will load all the commands from the file named *OSClist1* in the current directory. Loading `prgm OSClist2` will remove all *OSClist1* commands and load all *OSClist2* commands. Prgm commands occupy a single line in the "list"
 

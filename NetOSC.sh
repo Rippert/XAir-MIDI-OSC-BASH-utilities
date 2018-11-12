@@ -285,6 +285,7 @@ function prgm {
 	local fnsub=( "$fn" )
 	
 	prgmpids="/tmp/prgm.$pn.$$"
+	touch $prgmpids
 	
 	function _nested_load_prgm {
 			fnsub1="$1"
@@ -300,7 +301,7 @@ function prgm {
 					local cmdarraysub=( $pcmdsub )
 					if [[ $(compgen -A function) = *"${cmdarraysub[0]}"* ]]; then
 					  case ${cmdarraysub[0]} in
-					  	list|prune|pause|resume|load|snapload|save|append|next|previous|setlist|sendMIDI|sendOSC|syscmd)
+					  	list|prune|pause|resume|snapload|save|append|next|previous|setlist|sendMIDI|sendOSC|syscmd)
 					  		$pcmdsub
 					  		;;
 					  	prgm|global)
@@ -346,16 +347,16 @@ function prgm {
 			if [ "$pcmd" != "" ] && [ bad != 1 ]
 			then 
 				local cmdarraysub=( $pcmd )
-				if [[ $(compgen -A function) = *"${cmdarray[0]}"* ]]; then
+				if [[ $(compgen -A function) = *"${cmdarraysub[0]}"* ]]; then
 				  case ${cmdarraysub[0]} in
-				  	list|prune|pause|resume|load|snapload|save|append|next|previous|setlist|sendMIDI|sendOSC|syscmd)
+				  	list|prune|pause|resume|snapload|save|append|next|previous|setlist|sendMIDI|sendOSC|syscmd)
 				  		$pcmd
 				  		;;
 				  	prgm|global)
 				  		echo "Warning: nested prgm or global commands in prgm command are ignored"
 				  		;;
 				  	load)
-				  		_nested_load_prgm ${cmdarray[1]}
+				  		_nested_load_prgm ${cmdarraysub[1]}
 				  		;;
 				  	*)
 						$pcmd 
@@ -377,6 +378,7 @@ function global {
 	local fnsub=( "$fn" )
 	
 	prgmpids="/tmp/prgm.$pn.$$"
+	touch $prgmpids
 	
 	function _nested_load_global {
 			fnsub1="$1"
@@ -392,7 +394,7 @@ function global {
 					local cmdarraysub=( $pcmdsub )
 					if [[ $(compgen -A function) = *"${cmdarraysub[0]}"* ]]; then
 					  case ${cmdarraysub[0]} in
-					  	list|prune|pause|resume|load|snapload|save|append|next|previous|setlist|sendMIDI|sendOSC|syscmd)
+					  	list|prune|pause|resume|snapload|save|append|next|previous|setlist|sendMIDI|sendOSC|syscmd)
 					  		$pcmdsub
 					  		;;
 					  	prgm|global)
@@ -423,16 +425,16 @@ function global {
 		if [ "$pcmd" != "" ] && [ bad != 1 ] 
 		then 
 			local cmdarraysub=( $pcmd )
-			if [[ $(compgen -A function) = *"${cmdarray[0]}"* ]]; then
+			if [[ $(compgen -A function) = *"${cmdarraysub[0]}"* ]]; then
 			  case ${cmdarraysub[0]} in
-			  	list|prune|pause|resume|load|snapload|save|append|next|previous|setlist|sendMIDI|sendOSC|syscmd)
+			  	list|prune|pause|resume|snapload|save|append|next|previous|setlist|sendMIDI|sendOSC|syscmd)
 			  		$pcmd
 			  		;;
 			  	prgm|global)
 			  		echo "Warning: nested prgm or global commands in global command are ignored"
 			  		;;
 			  	load)
-			  		_nested_load_global ${cmdarray[1]}
+			  		_nested_load_global ${cmdarraysub[1]}
 			  		;;
 			  	*)
 					$pcmd 
