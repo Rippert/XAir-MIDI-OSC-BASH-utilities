@@ -706,7 +706,7 @@ function sendMIDI {
 }
 
 function sendOSC {
-	echo $@ > $pipe
+	eval echo -e $@ > $pipe
 }
 
 function syscmd {

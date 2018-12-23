@@ -124,7 +124,7 @@ Example: `sendMIDI dev Port-0 ch 1 cc 2 3` - Send a Continous controller message
 
 **sendOSC** <u>any-valid-OSC-command</u>
 
-send an arbitrary OSC command to the server at <u>OSC-server-IPv4-address</u>.
+send an arbitrary OSC command to the server at <u>OSC-server-IPv4-address</u>. Multiple commands can be sent by seperating them with "\n" (the double quotes must be included).
 
 Example: `sendOSC /ch/01/mix/fader ,f 0.5` - Set the Main fader of channel 1 on an XAIR mixer to it's midpoint.
 
