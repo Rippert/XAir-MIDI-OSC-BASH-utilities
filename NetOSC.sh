@@ -43,7 +43,7 @@ list_descendants () {
 
 
 function finish {
-  rm -f $pipe $cpipe "${tmpfiles[@]}" /tmp/prgm.*.$$
+  rm -f $pipe $cpipe $mpipe "${tmpfiles[@]}" /tmp/prgm.*.$$
   disown $(list_descendants $$) 2>/dev/null
   kill $(list_descendants $$) 2>/dev/null
 }
@@ -702,7 +702,7 @@ function resume {
 }
 
 function sendMIDI {
-	sendmidi $@
+	echo $@ > $mpipe
 }
 
 function sendOSC {
@@ -715,6 +715,7 @@ function syscmd {
 
 pipe=/tmp/NetOSCpipe.$$
 cpipe=/tmp/NetOSCcmd.$$
+mpipe=/tmp/NetOSCmpipe.$$
 
 if [[ ! -p $pipe ]]; then
 	mkfifo $pipe
@@ -724,12 +725,16 @@ if [[ ! -p $cpipe ]]; then
 	mkfifo $cpipe
 fi
 
+if [[ ! -p $mpipe ]]; then
+	mkfifo $mpipe
+fi
 
 xairip=$1    
 xairport=$2           # ipv4 address of XAir mixer
 mididevice=$3
 
 XAir_Interface -i $xairip -p $xairport -v 0 -t 0 -f $pipe <> $pipe &
+sendmidi -- <> $mpipe &
 
 if [ $# -gt 3 ]
   then
