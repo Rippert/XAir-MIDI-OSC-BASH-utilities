@@ -60,7 +60,7 @@ function cctapspeed {
 	oldtime=0
 	if [ $# -gt 5 ]; then mult=$6; else mult=1; fi
 	
-	{ receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber |
+	{ receivemidi ts dev "$mididevice" channel $ccchannel control-change $ccnumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum dat
 	 do 
 		   newtime="$((10#$msec+10#$sec*1000+10#$min*60000+10#$hr*3600000))"
@@ -86,7 +86,7 @@ function cctaptime {
 	oldtime=0
 	if [ $# -gt 5 ]; then mult=$6; else mult=1; fi
 	
-	{ receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber |
+	{ receivemidi ts dev "$mididevice" channel $ccchannel control-change $ccnumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum dat
 	 do 
 		   newtime="$((10#$msec+10#$sec*1000+10#$min*60000+10#$hr*3600000))"
@@ -109,7 +109,7 @@ function noteontapspeed {
 	oldtime=0
 	if [ $# -gt 5 ]; then mult=$6; else mult=1; fi
 	
-	{ receivemidi ts dev $mididevice channel $notechannel note-on $notenumber |
+	{ receivemidi ts dev "$mididevice" channel $notechannel note-on $notenumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum dat
 	 do 
 		   newtime="$((10#$msec+10#$sec*1000+10#$min*60000+10#$hr*3600000))"
@@ -135,7 +135,7 @@ function noteontaptime {
 	oldtime=0
 	if [ $# -gt 5 ]; then mult=$6; else mult=1; fi
 	
-	{ receivemidi ts dev $mididevice channel $notechannel note-on $notenumber |
+	{ receivemidi ts dev "$mididevice" channel $notechannel note-on $notenumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum dat
 	 do 
 		   newtime="$((10#$msec+10#$sec*1000+10#$min*60000+10#$hr*3600000))"
@@ -158,7 +158,7 @@ function pchtapspeed {
 	oldtime=0
 	if [ $# -gt 5 ]; then mult=$6; else mult=1; fi
 	
-	{ receivemidi ts dev $mididevice channel $pchchannel program-change $pchnumber |
+	{ receivemidi ts dev "$mididevice" channel $pchchannel program-change $pchnumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum 
 	 do 
 		   newtime="$((10#$msec+10#$sec*1000+10#$min*60000+10#$hr*3600000))"
@@ -185,7 +185,7 @@ function pchtaptime {
 	oldtime=0
 	if [ $# -gt 5 ]; then mult=$6; else mult=1; fi
 	
-	{ receivemidi ts dev $mididevice channel $pchchannel program-change $pchnumber |
+	{ receivemidi ts dev "$mididevice" channel $pchchannel program-change $pchnumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum 
 	 do 
 		   newtime="$((10#$msec+10#$sec*1000+10#$min*60000+10#$hr*3600000))"
@@ -223,7 +223,7 @@ function cc2param {
 	
 	oldtime=0
 	
-	{ receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber |
+	{ receivemidi ts dev "$mididevice" channel $ccchannel control-change $ccnumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum dat
 	 do 
 		   newtime="$((10#$msec+10#$sec*1000+10#$min*60000+10#$hr*3600000))"
@@ -246,7 +246,7 @@ function cc2toggle {
 	oscpath=$5
 	format=$6
 
-	{ receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber |
+	{ receivemidi ts dev "$mididevice" channel $ccchannel control-change $ccnumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum dat 
 	 do 
 		   if [ $dat -eq $onvalue ]
@@ -266,7 +266,7 @@ function note2toggle {
 	oscpath=$4
     format=$5
 	
-	{ receivemidi ts dev $mididevice channel $notechannel nn note $notenumber |
+	{ receivemidi ts dev "$mididevice" channel $notechannel nn note $notenumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum dat 
 	 do 
 		   if [ $typenum -eq $notenumber -a $dat -gt 0 ]
@@ -471,7 +471,7 @@ function pch2 {
 	
 	shift 2
 
-	{ receivemidi ts dev $mididevice channel $pchchannel program-change $pchnumber |
+	{ receivemidi ts dev "$mididevice" channel $pchchannel program-change $pchnumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum 
 	 do 
 		  echo 	"$@" > $cpipe
@@ -485,7 +485,7 @@ function cc2 {
 	
 	shift 3
 
-	{ receivemidi ts dev $mididevice channel $ccchannel control-change $ccnumber |
+	{ receivemidi ts dev "$mididevice" channel $ccchannel control-change $ccnumber |
 	 while IFS=":. " read hr min sec msec ch chnum type typenum dat 
 	 do 
 		   if [ $dat -eq $value ]
@@ -732,6 +732,7 @@ fi
 xairip=$1    
 xairport=$2           # ipv4 address of XAir mixer
 mididevice=$3
+
 
 XAir_Interface -i $xairip -p $xairport -v 0 -t 0 -f $pipe <> $pipe &
 sendmidi -- <> $mpipe &
